@@ -1,0 +1,60 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "ThisWorkbook"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Sub ObtenerInformacionCarpeta()
+    On Error GoTo Cancelado
+    
+    Dim folderDialog As fileDialog
+    Dim folderPath As String
+    Dim folderName As String
+    Dim folderDateCreated As Date
+    Dim fso As Object
+    Dim carpeta As Object
+    Dim cantidadArchivos As Long
+    
+    ' Crear el cuadro de diálogo para seleccionar carpeta
+    Set folderDialog = Application.fileDialog(msoFileDialogFolderPicker)
+    
+    With folderDialog
+        .Title = "Selecciona una carpeta para analizar"
+        If .Show = -1 Then
+            folderPath = .SelectedItems(1)
+        Else
+            MsgBox "No se seleccionó ninguna carpeta.", vbExclamation, "Cancelado"
+            Exit Sub
+        End If
+    End With
+    
+    ' Usar FileSystemObject para obtener información de la carpeta
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set carpeta = fso.GetFolder(folderPath)
+    
+    folderName = carpeta.Name
+    folderDateCreated = carpeta.DateCreated
+    cantidadArchivos = carpeta.Files.Count
+    
+    ' Insertar los datos en la hoja activa
+    With ActiveSheet
+        .Range("A1").Value = "-- Nombre de la carpeta:"
+        .Range("B1").Value = folderName
+        .Range("A2").Value = "-- Ruta completa:"
+        .Range("B2").Value = folderPath
+        .Range("A3").Value = "-- Fecha de creación:"
+        .Range("B3").Value = folderDateCreated
+        .Range("A4").Value = "-- Cantidad de archivos:"
+        .Range("B4").Value = cantidadArchivos
+    End With
+    
+    MsgBox "Información de la carpeta agregada en la hoja.", vbInformation, "Éxito"
+    Exit Sub
+
+Cancelado:
+    MsgBox "Ocurrió un error o se canceló la operación.", vbExclamation, "Error"
+End Sub
+

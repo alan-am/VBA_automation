@@ -14,6 +14,24 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+Private Sub btnCerrar_Click()
+    Unload Me
+End Sub
+
+Private Sub btnLimpiar_Click()
+    LimpiarFormulario
+End Sub
+
+Private Sub btnSeleccionarCarpeta_Click()
+    ' Llama a la función que abrimos diálogo y llena los TextBox
+    Dim folderPath As String
+    folderPath = SeleccionarCarpeta()
+    
+    If folderPath <> "" Then
+        MostrarDatosCarpeta folderPath
+    End If
+End Sub
+
 Private Sub Label1_Click()
 
 End Sub

@@ -25,11 +25,16 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     Set carpeta = fso.GetFolder(folderPath)
     Set info = CreateObject("Scripting.Dictionary")
     
+    
+    
     info("Nombre") = carpeta.Name
     info("Ruta") = carpeta.Path
-    info("FechaCreacion") = carpeta.DateCreated
     info("CantidadArchivos") = carpeta.Files.Count
-    info("TamanoTotal") = carpeta.Size
+    
+    ' seteamos los bytes a KB(/1024) y redondeamos
+    info("TamanoTotal") = Round(carpeta.Size / 1024, 1)
+    ' definimos que solo quede la fecha y no las horas.
+    info("FechaCreacion") = DateValue(carpeta.DateCreated)
     
     Set ObtenerInfoCarpeta = info
 End Function
@@ -42,7 +47,7 @@ Sub LimpiarFormulario()
         .txtFechaCreacion.Value = ""
         .txtCantidadArchivos.Value = ""
         .txtTamanoTotal.Value = ""
-        .cmbTipoDocumentos.ListIndex = -1
+        .cmbSoporte.ListIndex = -1
         .txtObservaciones.Value = ""
     End With
 End Sub

@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosCarpeta 
-   Caption         =   "Gestió de carpetas"
-   ClientHeight    =   7590
+   Caption         =   "Gestor de Carpetas Digitales"
+   ClientHeight    =   6915
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   7515
@@ -32,7 +32,15 @@ Private Sub btnSeleccionarCarpeta_Click()
     End If
 End Sub
 
+Private Sub Image1_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal X As Single, ByVal Y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
+
+End Sub
+
 Private Sub Label1_Click()
+
+End Sub
+
+Private Sub encabezado_Click()
 
 End Sub
 
@@ -44,7 +52,43 @@ Private Sub Label3_Click()
 
 End Sub
 
+Private Sub Label4_Click()
+
+End Sub
+
+Private Sub Label5_Click()
+
+End Sub
+
+Private Sub logoEspol_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal X As Single, ByVal Y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
+
+End Sub
+
+Private Sub observaciones_Click()
+
+End Sub
+
+Private Sub seccionDatos_Click()
+
+End Sub
+
+Private Sub serieDocumento_Click()
+
+End Sub
+
+Private Sub soporte_Click()
+
+End Sub
+
 Private Sub tamanio_Click()
+
+End Sub
+
+Private Sub Titulo_Click()
+
+End Sub
+
+Private Sub txtRutaCarpeta_Change()
 
 End Sub
 

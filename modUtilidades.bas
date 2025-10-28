@@ -47,8 +47,8 @@ Sub LimpiarFormulario()
         .txtFechaCreacion.Value = ""
         .txtCantidadArchivos.Value = ""
         .txtTamanoTotal.Value = ""
-        .cmbSoporte.ListIndex = -1
         .txtObservaciones.Value = ""
+        .txtFechaCierre.Value = "dd/mm/aaaa"
     End With
 End Sub
 

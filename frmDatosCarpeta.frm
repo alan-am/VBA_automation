@@ -17,6 +17,11 @@ Attribute VB_Exposed = False
 ' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object
 
+
+Private Sub labelDestino_Click()
+
+End Sub
+
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
     ' Carga de las listas dinámicas
@@ -26,13 +31,14 @@ Private Sub UserForm_Initialize()
     Me.txtNumCaja.Value = 0
     Me.cmbDestino.Value = "Conservación"
     Me.cmbSoporte.Value = "Digital"
+    Me.txtFechaCierre.Value = "dd/mm/aaaa"
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me
 End Sub
 
 Private Sub btnLimpiar_Click()
-    LimpiarFormulario
+    LimpiarFormulario 'modUtilidades
 End Sub
 
 Private Sub btnSeleccionarCarpeta_Click()
@@ -96,6 +102,88 @@ ErrorHandler:
     MsgBox "Error al cargar las listas de configuración." & vbCrLf & _
            "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
            vbCritical, "Error de Carga"
+End Sub
+
+' Funcion btn Insertar Datos
+Private Sub btnInsertar_Click()
+
+    ' Validar que los datos de la carpeta no esten vacios
+    If pDatosCarpeta Is Nothing Then
+        MsgBox "Error: Primero debe seleccionar una carpeta usando el botón 'Examinar...'.", vbCritical, "Acción Requerida"
+        Me.btnSeleccionarCarpeta.SetFocus ' Sugiere al usuario qué botón presionar
+        Exit Sub
+    End If
+    
+    ' Validar que el campo serie no este vacio
+    If Trim(Me.cmbSerieSubserie.Value) = "" Then
+        MsgBox "El campo 'Serie/Subserie' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.cmbSerieSubserie.SetFocus
+        Exit Sub
+    End If
+    
+    ' Validar que el campo destino no este vacio
+    If Trim(Me.cmbDestino.Value) = "" Then
+        MsgBox "El campo 'Destino Final' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.cmbDestino.SetFocus
+        Exit Sub
+    End If
+    
+    'Validar que el campo soporte no este vacio
+    If Trim(Me.cmbSoporte.Value) = "" Then
+        MsgBox "El campo 'Soporte' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.cmbSoporte.SetFocus
+        Exit Sub
+    End If
+    
+    ' Validación opcional para la fecha de cierre(Deshabilitado)
+    'If Trim(Me.txtFechaCierre.Value) <> "" And Not IsDate(Me.txtFechaCierre.Value) Then
+        'MsgBox "El formato de 'Fecha Cierre' no es válido. Use un formato de fecha.", vbExclamation, "Formato Inválido"
+        'Me.txtFechaCierre.SetFocus
+        'Exit Sub
+    'End If
+    
+    
+    ' seteo de los datos manuales de la carpeta
+    ' ya se tiene de la carpeta:
+    ' ("Nombre", "Ruta", "CantidadArchivos", "TamanoTotal", "FechaCreacion")
+    
+    ' Agregamos los nuevos datos manuales
+    pDatosCarpeta("SerieSubserie") = Me.cmbSerieSubserie.Value
+    pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
+    pDatosCarpeta("Destino") = Me.cmbDestino.Value
+    pDatosCarpeta("Soporte") = Me.cmbSoporte.Value
+    pDatosCarpeta("Observaciones") = Me.txtObservaciones.Value
+    
+    ' Campo oculto requerido
+    pDatosCarpeta("UbicacionTopografica") = "NN"
+    
+    ' validar Número de Caja (asegurar que sea numérico)
+    pDatosCarpeta("NumCaja") = IIf(IsNumeric(Me.txtNumCaja.Value), CLng(Me.txtNumCaja.Value), 0)
+    
+    'REVISAR -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha.
+    ' validar Fecha de Cierre final (asegurar que sea fecha o vacia)
+    If IsDate(Me.txtFechaCierre.Value) Then
+        pDatosCarpeta("FechaCierre") = CDate(Me.txtFechaCierre.Value)
+    Else
+        pDatosCarpeta("FechaCierre") = "dd/mm/aaaa"
+    End If
+    
+    
+    ' --- ESCRIBIR LOS DATOS
+    
+    ' Pasamos el diccionario completo a la función de exportación
+    If ExportarDatosInventario(pDatosCarpeta) Then
+        MsgBox "¡Éxito! Los datos de la carpeta '" & pDatosCarpeta("Nombre") & "' se han guardado en el inventario.", vbInformation, "Exportación Completa"
+        
+        ' Limpiar formulario para siguiente ingreso
+        LimpiarFormulario
+        
+        ' Resetea el diccionario
+        Set pDatosCarpeta = Nothing
+    Else
+        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
+    End If
+    
 End Sub
 
 Private Sub Image1_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal X As Single, ByVal Y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)

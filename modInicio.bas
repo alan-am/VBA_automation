@@ -4,9 +4,9 @@ Sub AbrirFormularioDatosCarpeta()
     frmDatosCarpeta.Show
 End Sub
 
-Sub MostrarDatosCarpeta(folderPath As String)
-    Dim info As Object
-    Set info = ObtenerInfoCarpeta(folderPath)
+Sub MostrarDatosCarpeta(info As Object)
+
+    'llenamos los datos con la info del argumento
     
     With frmDatosCarpeta
         .txtRutaCarpeta.Value = info("Ruta")
@@ -16,4 +16,3 @@ Sub MostrarDatosCarpeta(folderPath As String)
         .txtTamanoTotal.Value = info("TamanoTotal")
     End With
 End Sub
-

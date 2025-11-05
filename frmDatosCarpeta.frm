@@ -143,9 +143,12 @@ Private Sub btnInsertar_Click()
     'End If
     
     
-    ' seteo de los datos manuales de la carpeta
-    ' ya se tiene de la carpeta:
-    ' ("Nombre", "Ruta", "CantidadArchivos", "TamanoTotal", "FechaCreacion")
+    ' seteo de -todos- los datos manuales de la carpeta
+       
+    pDatosCarpeta("Nombre") = Me.txtNombreCarpeta.Value
+    pDatosCarpeta("Ruta") = Me.txtRutaCarpeta.Value
+    pDatosCarpeta("CantidadArchivos") = Me.txtCantidadArchivos.Value
+    pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
     
     ' Agregamos los nuevos datos manuales
     pDatosCarpeta("SerieSubserie") = Me.cmbSerieSubserie.Value
@@ -160,13 +163,25 @@ Private Sub btnInsertar_Click()
     ' validar Número de Caja (asegurar que sea numérico)
     pDatosCarpeta("NumCaja") = IIf(IsNumeric(Me.txtNumCaja.Value), CLng(Me.txtNumCaja.Value), 0)
     
-    'REVISAR -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha.
+    '  Validaciones de fecha
+    'MEJORA -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha(bloqueando la escritura en excel hasta que tenga buen formato).
+    
+    
     ' validar Fecha de Cierre final (asegurar que sea fecha o vacia)
     If IsDate(Me.txtFechaCierre.Value) Then
         pDatosCarpeta("FechaCierre") = CDate(Me.txtFechaCierre.Value)
     Else
         pDatosCarpeta("FechaCierre") = "dd/mm/aaaa"
     End If
+    
+    
+    ' validar Fecha de creacion(Si no se parsea correctamente, se escribe en el excel como "dd/mm/aaaa")
+    If IsDate(Me.txtFechaCreacion.Value) Then
+        pDatosCarpeta("FechaCreacion") = CDate(Me.txtFechaCreacion.Value)
+    Else
+        pDatosCarpeta("FechaCreacion") = "dd/mm/aaaa"
+    End If
+    
     
     
     ' --- ESCRIBIR LOS DATOS

@@ -1,4 +1,5 @@
 Attribute VB_Name = "modExportarExcel"
+
 ' Funcion que escribe los datos de la carpeta en una hoja excel
 Function ExportarDatosInventario(datos As Object) As Boolean
     

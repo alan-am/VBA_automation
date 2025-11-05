@@ -107,6 +107,10 @@ End Sub
 ' Funcion btn Insertar Datos
 Private Sub btnInsertar_Click()
 
+    'MEJORA -> Deshabilitar boton de click , al presionar, para evitar doble click.
+    'Me.btnInsertarDatos.Enabled = False
+    'Me.btnInsertarDatos.Enabled = True
+
     ' Validar que los datos de la carpeta no esten vacios
     If pDatosCarpeta Is Nothing Then
         MsgBox "Error: Primero debe seleccionar una carpeta usando el botón 'Examinar...'.", vbCritical, "Acción Requerida"
@@ -198,6 +202,8 @@ Private Sub btnInsertar_Click()
     Else
         MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
     End If
+    
+    
     
 End Sub
 

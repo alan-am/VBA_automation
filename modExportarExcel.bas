@@ -1,5 +1,5 @@
 Attribute VB_Name = "modExportarExcel"
-
+'revisar bug puntero
 ' Funcion que escribe los datos de la carpeta en una hoja excel
 Function ExportarDatosInventario(datos As Object) As Boolean
     
@@ -10,12 +10,22 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     Dim lRow As Long
     
     ' Hoja Destino
-    Set ws = ThisWorkbook.Sheets("Test")
+    Set ws = ThisWorkbook.Sheets("Inventario General")
     
-    ' Encuentra la primera fila vacía a partir de la columna A
-    lRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row + 1
+    Set wsConfig = ThisWorkbook.Sheets("Config")
     
+    ' 2. Lee el número de fila desde la celda puntero (D2)
+    ' Val() convierte el contenido de la celda a número. Si está vacío, devuelve 0.
+    lRow = CLng(Val(wsConfig.Range("D2").Value))
     
+    ' 3. Verificación de seguridad
+    ' Si la celda D2 está vacía (0) o < 2, empieza en la fila 9
+    ' (Asumiendo que la fila 1 siempre es la cabecera)
+    If lRow < 2 Then
+        lRow = 9
+    End If
+                                    
+  
     ' Mapeamos los datos a las columnas según la plantilla final y con respecto al diccionario Carpeta
     
     ' Col 1: SERIE/SUBSERIE DOCUMENTAL
@@ -46,21 +56,33 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     ws.Cells(lRow, 9).Value = datos("Soporte")
     
     ' Col 10: UBICACIÓN TOPOGRÁFICA - ZONA
-    ws.Cells(lRow, 10).Value = datos("UbicacionTopografica")
+    ws.Cells(lRow, 10).Value = datos("UbicacionTopografica") ' Asigna "NN"
     
-    ' Col 13: OBSERVACIONES (Saltamos Col 11 y 12)
+    ' Col 11: UBICACIÓN TOPOGRÁFICA - ESTANTE
+    ws.Cells(lRow, 11).Value = datos("UbicacionTopografica") ' Asigna "NN"
+    
+    ' Col 12: UBICACIÓN TOPOGRÁFICA - BANDEJA
+    ws.Cells(lRow, 12).Value = datos("UbicacionTopografica") ' Asigna "NN"
+    
+    ' Col 13: OBSERVACIONES
     ws.Cells(lRow, 13).Value = datos("Observaciones")
     
     ' ------ datos de prueba adicionales que no van en la plantilla final ------
-    ws.Cells(lRow, 14).Value = "Ruta: " & datos("Ruta")
-    ws.Cells(lRow, 15).Value = "Tamaño: " & datos("TamanoTotal") & " KB"
+    'ws.Cells(lRow, 14).Value = "Ruta: " & datos("Ruta")
+    'ws.Cells(lRow, 15).Value = "Tamaño: " & datos("TamanoTotal") & " KB"
     
-    ' devoler true
+    ' --- 5. ACTUALIZAR EL PUNTERO ---
+    ' Si todo salió bien, actualiza la celda Z1 para la *siguiente* fila
+    wsConfig.Range("D2").Value = lRow + 1
+    
+    ' devolver true
     ExportarDatosInventario = True
     Exit Function
 
 ' Bloque de manejo de errores
 ManejoError:
-    ' Si algo falla (ej: la hoja "Test" no existe), devuelve False
+    ' Si algo falla (ej: la hoja "Inventario General" no existe), devuelve False
+    MsgBox "Error al exportar: " & Err.Description & vbCrLf & _
+           "Asegúrese que la hoja 'Inventario General' existe.", vbCritical, "Error en 'modExportarExcel'"
     ExportarDatosInventario = False
 End Function

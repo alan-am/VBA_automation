@@ -28,44 +28,45 @@ Function ExportarDatosInventario(datos As Object) As Boolean
   
     ' Mapeamos los datos a las columnas según la plantilla final y con respecto al diccionario Carpeta
     
+    'empieza desde la columna 2
     ' Col 1: SERIE/SUBSERIE DOCUMENTAL
-    ws.Cells(lRow, 1).Value = datos("SerieSubserie")
+    ws.Cells(lRow, 2).Value = datos("SerieSubserie")
     
     ' Col 2: N° CAJA
-    ws.Cells(lRow, 2).Value = datos("NumCaja")
+    ws.Cells(lRow, 3).Value = datos("NumCaja")
     
     ' Col 3: N° DE EXPEDIENTE
-    ws.Cells(lRow, 3).Value = datos("NumExpediente")
+    ws.Cells(lRow, 4).Value = datos("NumExpediente")
     
     ' Col 4: NOMBRE DEL EXPEDIENTE (Nombre automático de la carpeta)
-    ws.Cells(lRow, 4).Value = datos("Nombre")
+    ws.Cells(lRow, 5).Value = datos("Nombre")
     
     ' Col 5: FECHAS EXTREMAS - APERTURA (Fecha automática de creación)
-    ws.Cells(lRow, 5).Value = datos("FechaCreacion")
+    ws.Cells(lRow, 6).Value = datos("FechaCreacion")
     
     ' Col 6: FECHAS EXTREMAS - CIERRE (Fecha manual)
-    ws.Cells(lRow, 6).Value = datos("FechaCierre")
+    ws.Cells(lRow, 7).Value = datos("FechaCierre")
     
     ' Col 7: FOJAS (Cantidad automática de archivos)
-    ws.Cells(lRow, 7).Value = datos("CantidadArchivos")
+    ws.Cells(lRow, 8).Value = datos("CantidadArchivos")
     
     ' Col 8: DESTINO FINAL
-    ws.Cells(lRow, 8).Value = datos("Destino")
+    ws.Cells(lRow, 9).Value = datos("Destino")
     
     ' Col 9: SOPORTE
-    ws.Cells(lRow, 9).Value = datos("Soporte")
+    ws.Cells(lRow, 10).Value = datos("Soporte")
     
     ' Col 10: UBICACIÓN TOPOGRÁFICA - ZONA
-    ws.Cells(lRow, 10).Value = datos("UbicacionTopografica") ' Asigna "NN"
-    
-    ' Col 11: UBICACIÓN TOPOGRÁFICA - ESTANTE
     ws.Cells(lRow, 11).Value = datos("UbicacionTopografica") ' Asigna "NN"
     
-    ' Col 12: UBICACIÓN TOPOGRÁFICA - BANDEJA
+    ' Col 11: UBICACIÓN TOPOGRÁFICA - ESTANTE
     ws.Cells(lRow, 12).Value = datos("UbicacionTopografica") ' Asigna "NN"
     
+    ' Col 12: UBICACIÓN TOPOGRÁFICA - BANDEJA
+    ws.Cells(lRow, 13).Value = datos("UbicacionTopografica") ' Asigna "NN"
+    
     ' Col 13: OBSERVACIONES
-    ws.Cells(lRow, 13).Value = datos("Observaciones")
+    ws.Cells(lRow, 14).Value = datos("Observaciones")
     
     ' ------ datos de prueba adicionales que no van en la plantilla final ------
     'ws.Cells(lRow, 14).Value = "Ruta: " & datos("Ruta")

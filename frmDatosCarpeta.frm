@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosCarpeta 
    Caption         =   "Gestor de Carpetas Digitales"
-   ClientHeight    =   6915
+   ClientHeight    =   7335
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   7515
@@ -19,6 +19,14 @@ Private pDatosCarpeta As Object
 
 
 Private Sub labelDestino_Click()
+
+End Sub
+
+Private Sub labelSerieDocumento_Click()
+
+End Sub
+
+Private Sub txtNombreCarpeta_Change()
 
 End Sub
 
@@ -67,32 +75,32 @@ Private Sub CargarListasDinamicas()
     Set ws = ThisWorkbook.Sheets("Config")
     
     ' Reinicion de los comboBox
-    Me.cmbSerieSubserie.Clear
+    Me.cmbSerie.Clear
     Me.cmbDestino.Clear
     Me.cmbSoporte.Clear
     
     ' OJO Asumiendo que la Fila 1 es el título
-    ' Cargar Serie/Subserie (Columna A)
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-    For i = 2 To lastRow
-        If Trim(ws.Cells(i, "A").Value) <> "" Then
-            Me.cmbSerieSubserie.AddItem ws.Cells(i, "A").Value
-        End If
-    Next i
-    
-    ' Cargar Destino Final (Columna B)
+    ' Cargar Serie Documental(Columna B)
     lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
     For i = 2 To lastRow
         If Trim(ws.Cells(i, "B").Value) <> "" Then
-            Me.cmbDestino.AddItem ws.Cells(i, "B").Value
+            Me.cmbSerie.AddItem ws.Cells(i, "B").Value
         End If
     Next i
     
-    ' Cargar Soporte (Columna C)
-    lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row
+    ' Cargar Destino Final (Columna D)
+    lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).Row
     For i = 2 To lastRow
-        If Trim(ws.Cells(i, "C").Value) <> "" Then
-            Me.cmbSoporte.AddItem ws.Cells(i, "C").Value
+        If Trim(ws.Cells(i, "D").Value) <> "" Then
+            Me.cmbDestino.AddItem ws.Cells(i, "D").Value
+        End If
+    Next i
+    
+    ' Cargar Soporte (Columna E)
+    lastRow = ws.Cells(ws.Rows.Count, "E").End(xlUp).Row
+    For i = 2 To lastRow
+        If Trim(ws.Cells(i, "E").Value) <> "" Then
+            Me.cmbSoporte.AddItem ws.Cells(i, "E").Value
         End If
     Next i
     
@@ -119,9 +127,9 @@ Private Sub btnInsertar_Click()
     End If
     
     ' Validar que el campo serie no este vacio
-    If Trim(Me.cmbSerieSubserie.Value) = "" Then
+    If Trim(Me.cmbSerie.Value) = "" Then
         MsgBox "El campo 'Serie/Subserie' es obligatorio.", vbCritical, "Dato Faltante"
-        Me.cmbSerieSubserie.SetFocus
+        Me.cmbSerie.SetFocus
         Exit Sub
     End If
     
@@ -155,7 +163,7 @@ Private Sub btnInsertar_Click()
     pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
     
     ' Agregamos los nuevos datos manuales
-    pDatosCarpeta("SerieSubserie") = Me.cmbSerieSubserie.Value
+    pDatosCarpeta("SerieSubserie") = Me.cmbSerie.Value
     pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
     pDatosCarpeta("Destino") = Me.cmbDestino.Value
     pDatosCarpeta("Soporte") = Me.cmbSoporte.Value

@@ -42,44 +42,47 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     ' Escritura de datos en la nueva fila
     ' Usamos .Range(columna_numero) para escribir en la celda
     
-    ' Col 1: SERIE/SUBSERIE DOCUMENTAL
-    newRow.Range(1).Value = datos("SerieSubserie")
+    ' Col 1: SERIE DOCUMENTAL
+    newRow.Range(1).Value = datos("Serie")
     
-    ' Col 2: N° CAJA
-    newRow.Range(2).Value = datos("NumCaja")
+    ' Col 2: SUBSERIE DOCUMENTAL
+    newRow.Range(2).Value = datos("Subserie")
     
-    ' Col 3: N° DE EXPEDIENTE
-    newRow.Range(3).Value = datos("NumExpediente")
+    ' Col 3: N° CAJA
+    newRow.Range(3).Value = datos("NumCaja")
     
-    ' Col 4: NOMBRE DEL EXPEDIENTE
-    newRow.Range(4).Value = datos("Nombre")
+    ' Col 4: N° DE EXPEDIENTE
+    newRow.Range(4).Value = datos("NumExpediente")
     
-    ' Col 5: FECHAS EXTREMAS - APERTURA
-    newRow.Range(5).Value = datos("FechaCreacion")
+    ' Col 5: NOMBRE DEL EXPEDIENTE
+    newRow.Range(5).Value = datos("Nombre")
     
-    ' Col 6: FECHAS EXTREMAS - CIERRE
-    newRow.Range(6).Value = datos("FechaCierre")
+    ' Col 6: FECHAS EXTREMAS - APERTURA
+    newRow.Range(6).Value = datos("FechaCreacion")
     
-    ' Col 7: FOJAS
-    newRow.Range(7).Value = datos("CantidadArchivos")
+    ' Col 7: FECHAS EXTREMAS - CIERRE
+    newRow.Range(7).Value = datos("FechaCierre")
     
-    ' Col 8: DESTINO FINAL
-    newRow.Range(8).Value = datos("Destino")
+    ' Col 8: FOJAS
+    newRow.Range(8).Value = datos("CantidadArchivos")
     
-    ' Col 9: SOPORTE
-    newRow.Range(9).Value = datos("Soporte")
+    ' Col 9: DESTINO FINAL
+    newRow.Range(9).Value = datos("Destino")
     
-    ' Col 10: UBICACIÓN TOPOGRÁFICA - ZONA
-    newRow.Range(10).Value = datos("UbicacionTopografica")
+    ' Col 10: SOPORTE
+    newRow.Range(10).Value = datos("Soporte")
     
-    ' Col 11: UBICACIÓN TOPOGRÁFICA - ESTANTE
+    ' Col 11: UBICACIÓN TOPOGRÁFICA - ZONA
     newRow.Range(11).Value = datos("UbicacionTopografica")
     
-    ' Col 12: UBICACIÓN TOPOGRÁFICA - BANDEJA
+    ' Col 12: UBICACIÓN TOPOGRÁFICA - ESTANTE
     newRow.Range(12).Value = datos("UbicacionTopografica")
     
-    ' Col 13: OBSERVACIONES
-    newRow.Range(13).Value = datos("Observaciones")
+    ' Col 13: UBICACIÓN TOPOGRÁFICA - BANDEJA
+    newRow.Range(13).Value = datos("UbicacionTopografica")
+    
+    ' Col 14: OBSERVACIONES
+    newRow.Range(14).Value = datos("Observaciones")
     
     ' --- APLICACION DE FORMATO A LA NUEVA FILA ---
     With newRow.Range

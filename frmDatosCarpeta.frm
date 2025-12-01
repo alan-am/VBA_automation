@@ -76,6 +76,7 @@ Private Sub CargarListasDinamicas()
     
     ' Reinicion de los comboBox
     Me.cmbSerie.Clear
+    Me.cmbSubserie.Clear
     Me.cmbDestino.Clear
     Me.cmbSoporte.Clear
     
@@ -85,6 +86,14 @@ Private Sub CargarListasDinamicas()
     For i = 2 To lastRow
         If Trim(ws.Cells(i, "B").Value) <> "" Then
             Me.cmbSerie.AddItem ws.Cells(i, "B").Value
+        End If
+    Next i
+    
+    ' Cargar Subserie Documental(Columna C)
+    lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row
+    For i = 2 To lastRow
+        If Trim(ws.Cells(i, "C").Value) <> "" Then
+            Me.cmbSubserie.AddItem ws.Cells(i, "C").Value
         End If
     Next i
     
@@ -128,8 +137,15 @@ Private Sub btnInsertar_Click()
     
     ' Validar que el campo serie no este vacio
     If Trim(Me.cmbSerie.Value) = "" Then
-        MsgBox "El campo 'Serie/Subserie' es obligatorio.", vbCritical, "Dato Faltante"
+        MsgBox "El campo 'Serie' es obligatorio.", vbCritical, "Dato Faltante"
         Me.cmbSerie.SetFocus
+        Exit Sub
+    End If
+    
+    ' Validar que el campo Subsserie no este vacio
+    If Trim(Me.cmbSubserie.Value) = "" Then
+        MsgBox "El campo 'Subserie' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.cmbSubserie.SetFocus
         Exit Sub
     End If
     
@@ -163,7 +179,8 @@ Private Sub btnInsertar_Click()
     pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
     
     ' Agregamos los nuevos datos manuales
-    pDatosCarpeta("SerieSubserie") = Me.cmbSerie.Value
+    pDatosCarpeta("Serie") = Me.cmbSerie.Value
+    pDatosCarpeta("Subserie") = Me.cmbSubserie.Value
     pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
     pDatosCarpeta("Destino") = Me.cmbDestino.Value
     pDatosCarpeta("Soporte") = Me.cmbSoporte.Value

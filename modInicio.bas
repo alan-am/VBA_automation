@@ -14,5 +14,7 @@ Sub MostrarDatosCarpeta(info As Object)
         .txtFechaCreacion.Value = info("FechaCreacion")
         .txtCantidadArchivos.Value = info("CantidadArchivos")
         .txtTamanoTotal.Value = info("TamanoTotal")
+        .txtFechaCierre.Value = info("FechaCierre")
+        
     End With
 End Sub

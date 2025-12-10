@@ -18,3 +18,6 @@ Sub btnCerrar_Click()
     Unload frmDatosCarpeta
 End Sub
 
+Sub AbrirBuscadorSeccion()
+    frmBusqueda.Show
+End Sub

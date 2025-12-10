@@ -1,4 +1,5 @@
 Attribute VB_Name = "modExportarExcel"
+'modExportarExcel
 
 ' Funcion que escribe los datos de la carpeta en una hoja excel
 Function ExportarDatosInventario(datos As Object) As Boolean
@@ -52,6 +53,7 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     newRow.Range(3).Value = datos("NumCaja")
     
     ' Col 4: N° DE EXPEDIENTE
+    newRow.Range(4).NumberFormat = "@"
     newRow.Range(4).Value = datos("NumExpediente")
     
     ' Col 5: NOMBRE DEL EXPEDIENTE
@@ -64,6 +66,9 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     newRow.Range(7).Value = datos("FechaCierre")
     
     ' Col 8: FOJAS
+    newRow.Range(8).NumberFormat = "0"
+    newRow.Range(8).Value = Val(datos("CantidadArchivos"))
+    
     newRow.Range(8).Value = datos("CantidadArchivos")
     
     ' Col 9: DESTINO FINAL

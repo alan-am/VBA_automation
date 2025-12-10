@@ -18,17 +18,6 @@ Attribute VB_Exposed = False
 Private pDatosCarpeta As Object
 
 
-Private Sub labelDestino_Click()
-
-End Sub
-
-Private Sub labelSerieDocumento_Click()
-
-End Sub
-
-Private Sub txtNombreCarpeta_Change()
-
-End Sub
 
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
@@ -228,70 +217,5 @@ Private Sub btnInsertar_Click()
         MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
     End If
     
-    
-    
 End Sub
 
-Private Sub Image1_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal X As Single, ByVal Y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
-
-End Sub
-
-Private Sub Label1_Click()
-
-End Sub
-
-Private Sub encabezado_Click()
-
-End Sub
-
-Private Sub Label2_Click()
-
-End Sub
-
-Private Sub Label3_Click()
-
-End Sub
-
-Private Sub Label4_Click()
-
-End Sub
-
-Private Sub Label5_Click()
-
-End Sub
-
-Private Sub logoEspol_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal X As Single, ByVal Y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
-
-End Sub
-
-Private Sub observaciones_Click()
-
-End Sub
-
-Private Sub seccionDatos_Click()
-
-End Sub
-
-Private Sub serieDocumento_Click()
-
-End Sub
-
-Private Sub soporte_Click()
-
-End Sub
-
-Private Sub tamanio_Click()
-
-End Sub
-
-Private Sub Titulo_Click()
-
-End Sub
-
-Private Sub txtRutaCarpeta_Change()
-
-End Sub
-
-Private Sub UserForm_Click()
-
-End Sub

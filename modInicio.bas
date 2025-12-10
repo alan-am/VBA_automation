@@ -1,4 +1,6 @@
 Attribute VB_Name = "modInicio"
+'modInicio
+
 Sub AbrirFormularioDatosCarpeta()
     ' Muestra el formulario principal
     frmDatosCarpeta.Show

@@ -1,4 +1,5 @@
 Attribute VB_Name = "modUtilidades"
+'modUtilidades
 
 ' Muestra el diálogo para seleccionar carpeta y devuelve la ruta
 Function SeleccionarCarpeta() As String

@@ -1,4 +1,6 @@
 Attribute VB_Name = "modInterfazUsuario"
+'modInterfazUsuario
+
 ' Acción del botón Analizar
 Sub btnAnalizar_Click()
     Dim folderPath As String

@@ -1,23 +1,23 @@
 VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosCarpeta 
-   Caption         =   "Gestor de Carpetas Digitales"
-   ClientHeight    =   7335
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosFisicos 
+   Caption         =   "Gestor de Carpetas Físicas"
+   ClientHeight    =   7575
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   7515
-   OleObjectBlob   =   "frmDatosCarpeta.frx":0000
+   OleObjectBlob   =   "frmDatosFisicos.frx":0000
    StartUpPosition =   2  'Centrar en pantalla
 End
-Attribute VB_Name = "frmDatosCarpeta"
+Attribute VB_Name = "frmDatosFisicos"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'frmDatosCarpeta
+
+'frmDatosFisicos
 
 ' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object
-
 
 
 ' Metodo de inicializacion del forms
@@ -28,15 +28,22 @@ Private Sub UserForm_Initialize()
     ' Seteado valores default de cierto campos
     Me.txtNumCaja.Value = 0
     Me.cmbDestino.Value = "Conservación"
-    Me.cmbSoporte.Value = "Digital"
+    Me.cmbSoporte.Value = "Físico"
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
+    Me.txtFechaCreacion.Value = "dd/mm/aaaa"
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me
 End Sub
 
 Private Sub btnLimpiar_Click()
-    LimpiarFormulario 'modUtilidades
+    ' Limpiar campos manuales
+    Me.txtNombreCarpeta.Value = ""
+    Me.txtFechaCreacion.Value = "dd/mm/aaaa"
+    Me.txtCantidadArchivos.Value = "" ' Fojas
+    Me.txtObservaciones.Value = ""
+    Me.txtFechaCierre.Value = "dd/mm/aaaa"
+    Me.txtNumExpediente.Value = ""
 End Sub
 
 Private Sub btnSeleccionarCarpeta_Click()
@@ -64,12 +71,13 @@ Private Sub CargarListasDinamicas()
     ' Definicion hoja de configuración
     Set ws = ThisWorkbook.Sheets("Config")
     
-    ' Reinicion de los comboBox
+    ' Reinicio de los comboBox
     Me.cmbSerie.Clear
     Me.cmbSubserie.Clear
     Me.cmbDestino.Clear
     Me.cmbSoporte.Clear
-
+    
+    
     ' Cargar Serie Documental(Columna B)
     lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
     For i = 2 To lastRow
@@ -117,104 +125,129 @@ Private Sub btnInsertar_Click()
     'Me.btnInsertarDatos.Enabled = False
     'Me.btnInsertarDatos.Enabled = True
 
-    ' Validar que los datos de la carpeta no esten vacios
-    If pDatosCarpeta Is Nothing Then
-        MsgBox "Error: Primero debe seleccionar una carpeta usando el botón 'Examinar...'.", vbCritical, "Acción Requerida"
-        Me.btnSeleccionarCarpeta.SetFocus ' Sugiere al usuario qué botón presionar
+
+    ' VALIDACIÓNES DE CAMPOS OBLIGATORIOS
+    ' Nombre Carpeta
+    If Trim(Me.txtNombreCarpeta.Value) = "" Then
+        MsgBox "El campo 'Nombre Carpeta' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.txtNombreCarpeta.SetFocus
         Exit Sub
     End If
     
-    ' Validar que el campo serie no este vacio
+    ' Fojas (CantidadArchivos) - Debe tener valor
+    If Trim(Me.txtCantidadArchivos.Value) = "" Then
+        MsgBox "El campo 'N° Fojas' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.txtCantidadArchivos.SetFocus
+        Exit Sub
+    End If
+    
+    ' Fecha Creación - Debe ser fecha válida
+    If Not IsDate(Me.txtFechaCreacion.Value) Then
+        MsgBox "El campo 'Fecha de Creación' es obligatorio y debe ser una fecha válida.", vbCritical, "Formato Incorrecto"
+        Me.txtFechaCreacion.SetFocus
+        Exit Sub
+    End If
+    
+    ' Serie y Subserie
     If Trim(Me.cmbSerie.Value) = "" Then
         MsgBox "El campo 'Serie' es obligatorio.", vbCritical, "Dato Faltante"
         Me.cmbSerie.SetFocus
         Exit Sub
     End If
     
-    ' Validar que el campo Subsserie no este vacio
     If Trim(Me.cmbSubserie.Value) = "" Then
         MsgBox "El campo 'Subserie' es obligatorio.", vbCritical, "Dato Faltante"
         Me.cmbSubserie.SetFocus
         Exit Sub
     End If
     
-    ' Validar que el campo destino no este vacio
-    If Trim(Me.cmbDestino.Value) = "" Then
-        MsgBox "El campo 'Destino Final' es obligatorio.", vbCritical, "Dato Faltante"
-        Me.cmbDestino.SetFocus
+    ' N° Caja
+    If Trim(Me.txtNumCaja.Value) = "" Then
+        MsgBox "El campo 'N° Caja' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.txtNumCaja.SetFocus
         Exit Sub
     End If
     
-    'Validar que el campo soporte no este vacio
+    ' Soporte y Destino
     If Trim(Me.cmbSoporte.Value) = "" Then
         MsgBox "El campo 'Soporte' es obligatorio.", vbCritical, "Dato Faltante"
         Me.cmbSoporte.SetFocus
         Exit Sub
     End If
     
-    ' Validación opcional para la fecha de cierre(Deshabilitado)
-    'If Trim(Me.txtFechaCierre.Value) <> "" And Not IsDate(Me.txtFechaCierre.Value) Then
-        'MsgBox "El formato de 'Fecha Cierre' no es válido. Use un formato de fecha.", vbExclamation, "Formato Inválido"
-        'Me.txtFechaCierre.SetFocus
-        'Exit Sub
-    'End If
+    If Trim(Me.cmbDestino.Value) = "" Then
+        MsgBox "El campo 'Destino' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.cmbDestino.SetFocus
+        Exit Sub
+    End If
+
+    ' PREPARACIÓN DE DATOS (y valores por defecto)
+
     
+    Dim datosManuales As Object
+    Set datosManuales = CreateObject("Scripting.Dictionary")
     
-    ' seteo de -todos- los datos manuales de la carpeta
-       
-    pDatosCarpeta("Nombre") = Me.txtNombreCarpeta.Value
-    pDatosCarpeta("Ruta") = Me.txtRutaCarpeta.Value
-    pDatosCarpeta("CantidadArchivos") = Me.txtCantidadArchivos.Value
-    pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
+    ' --- OBLIGATORIOS DIRECTOS ---
+    datosManuales("Nombre") = Me.txtNombreCarpeta.Value
+    datosManuales("CantidadArchivos") = Val(Me.txtCantidadArchivos.Value) ' Fojas
+    datosManuales("FechaCreacion") = CDate(Me.txtFechaCreacion.Value)
+    datosManuales("Serie") = Me.cmbSerie.Value
+    datosManuales("Subserie") = Me.cmbSubserie.Value
+    datosManuales("NumCaja") = Me.txtNumCaja.Value
+    datosManuales("Soporte") = Me.cmbSoporte.Value
+    datosManuales("Destino") = Me.cmbDestino.Value
+
     
-    ' Agregamos los nuevos datos manuales
-    pDatosCarpeta("Serie") = Me.cmbSerie.Value
-    pDatosCarpeta("Subserie") = Me.cmbSubserie.Value
-    pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
-    pDatosCarpeta("Destino") = Me.cmbDestino.Value
-    pDatosCarpeta("Soporte") = Me.cmbSoporte.Value
-    pDatosCarpeta("Observaciones") = Me.txtObservaciones.Value
+    ' --- NO OBLIGATORIOS CON DEFAULT ---
     
-    ' Campo oculto requerido
-    pDatosCarpeta("UbicacionTopografica") = "NN"
-    
-    ' validar Número de Caja (asegurar que sea numérico)
-    pDatosCarpeta("NumCaja") = IIf(IsNumeric(Me.txtNumCaja.Value), CLng(Me.txtNumCaja.Value), 0)
-    
-    '  Validaciones de fecha
-    'MEJORA -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha(bloqueando la escritura en excel hasta que tenga buen formato).
-    
-    
-    ' validar Fecha de Cierre final (asegurar que sea fecha o vacia)
+    ' Fecha de Cierre (Default: dd/mm/aaaa)
     If IsDate(Me.txtFechaCierre.Value) Then
-        pDatosCarpeta("FechaCierre") = CDate(Me.txtFechaCierre.Value)
+        datosManuales("FechaCierre") = CDate(Me.txtFechaCierre.Value)
     Else
-        pDatosCarpeta("FechaCierre") = "dd/mm/aaaa"
+        datosManuales("FechaCierre") = "dd/mm/aaaa"
     End If
     
-    
-    ' validar Fecha de creacion(Si no se parsea correctamente, se escribe en el excel como "dd/mm/aaaa")
-    If IsDate(Me.txtFechaCreacion.Value) Then
-        pDatosCarpeta("FechaCreacion") = CDate(Me.txtFechaCreacion.Value)
+    ' N° Expediente (Default: ---)
+    If Trim(Me.txtNumExpediente.Value) = "" Then
+        datosManuales("NumExpediente") = "---"
     Else
-        pDatosCarpeta("FechaCreacion") = "dd/mm/aaaa"
+        datosManuales("NumExpediente") = Me.txtNumExpediente.Value
     End If
     
+    ' Observaciones (Se permite vacío)
+    datosManuales("Observaciones") = Me.txtObservaciones.Value
     
-    
-    ' --- ESCRIBIR LOS DATOS
-    
-    ' Pasamos el diccionario completo a la función de exportación
-    If ExportarDatosInventario(pDatosCarpeta) Then
-        MsgBox "Expediente '" & pDatosCarpeta("Nombre") & "' guardado con éxito.", vbInformation, "Exportación Completa"
-        
-        ' Limpiar formulario para siguiente ingreso
-        LimpiarFormulario
-        
-        ' Resetea el diccionario
-        Set pDatosCarpeta = Nothing
+    ' CAMPOS UBICACIÓN TOPOGRÁFICA (Default: NN)
+
+    If Trim(Me.txtZona.Value) = "" Then
+        datosManuales("Zona") = "NN"
     Else
-        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
+        datosManuales("Zona") = Me.txtZona.Value
+    End If
+    
+    ' Estanteria
+    If Trim(Me.txtEstanteria.Value) = "" Then
+        datosManuales("Estanteria") = "NN"
+    Else
+        datosManuales("Estanteria") = Me.txtEstanteria.Value
+    End If
+    
+    ' Bandeja
+    If Trim(Me.txtBandeja.Value) = "" Then
+        datosManuales("Bandeja") = "NN"
+    Else
+        datosManuales("Bandeja") = Me.txtBandeja.Value
+    End If
+
+    
+
+    ' ENVIAR A EXCEL
+
+    If ExportarDatosInventario(datosManuales) Then
+        MsgBox "Registro Guardado con éxito.", vbInformation
+        btnLimpiar_Click
+    Else
+        MsgBox "Error al guardar la carpeta.", vbCritical
     End If
     
 End Sub

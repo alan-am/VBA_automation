@@ -78,13 +78,25 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     newRow.Range(10).Value = datos("Soporte")
     
     ' Col 11: UBICACIÓN TOPOGRÁFICA - ZONA
-    newRow.Range(11).Value = datos("UbicacionTopografica")
+    If datos.Exists("Zona") Then
+        newRow.Range(11).Value = datos("Zona")
+    Else
+        newRow.Range(11).Value = "NN" ' Default digital
+    End If
     
     ' Col 12: UBICACIÓN TOPOGRÁFICA - ESTANTE
-    newRow.Range(12).Value = datos("UbicacionTopografica")
+    If datos.Exists("Estanteria") Then
+        newRow.Range(12).Value = datos("Estanteria")
+    Else
+        newRow.Range(12).Value = "NN"
+    End If
     
     ' Col 13: UBICACIÓN TOPOGRÁFICA - BANDEJA
-    newRow.Range(13).Value = datos("UbicacionTopografica")
+    If datos.Exists("Bandeja") Then
+        newRow.Range(13).Value = datos("Bandeja")
+    Else
+        newRow.Range(13).Value = "NN"
+    End If
     
     ' Col 14: OBSERVACIONES
     newRow.Range(14).Value = datos("Observaciones")

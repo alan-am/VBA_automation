@@ -23,3 +23,8 @@ End Sub
 Sub AbrirBuscadorSeccion()
     frmBusqueda.Show
 End Sub
+
+
+Sub AbrirFormularioFisico()
+    frmDatosFisicos.Show
+End Sub

@@ -25,9 +25,9 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     Set tbl = wsInventario.ListObjects(nombreTabla)
     
     ' -- Lectura de valores
-    minAltura = Val(wsConfig.Range("F2").Value)
-    nombreFuente = wsConfig.Range("G2").Value
-    tamanoFuente = Val(wsConfig.Range("H2").Value)
+    minAltura = Val(wsConfig.Range("C3").Value)
+    nombreFuente = wsConfig.Range("D3").Value
+    tamanoFuente = Val(wsConfig.Range("E3").Value)
     
     ' --- Valores por default si la config está vacía ---
     If minAltura < 15 Then minAltura = 15 ' Un mínimo de 15

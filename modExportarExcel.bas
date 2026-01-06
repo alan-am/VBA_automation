@@ -34,15 +34,34 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     If nombreFuente = "" Then nombreFuente = "Calibri"
     If tamanoFuente < 8 Then tamanoFuente = 8
     
+    ' DEFINICIÓN DE VARIABLES ESTÁNDAR para el N° exp.
+    Const FORMATO_PREFIJO As String = "ESPOL-"
+    Const CODIGO_DESCONOCIDO As String = "???"
+    
+    Dim codSeleccionado As String
+    Dim correlativo As Long
+    Dim codigoExpedienteFinal As String
+    
     
     ' AÑADIR UNA NUEVA FILA A LA TABLA
     ' se añade la fila al final de la tabla
     ' y "empuja" cualquier contenido de abajo
     Set newRow = tbl.ListRows.Add(AlwaysInsert:=True)
     
+    
+    ' PREPARACION N° EXPEDIENTE
+    ' leer Q2
+    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
+    ' Validación de seguridad por si Q2 está vacío
+    If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
+    ' Calcular el Correlativo
+    correlativo = tbl.ListRows.Count
+    ' Armar el String Final (ESPOL - CODIGO - SECUENCIA)
+    codigoExpedienteFinal = FORMATO_PREFIJO & codSeleccionado & "-" & Format(correlativo, "000")
+    
+    
     ' Escritura de datos en la nueva fila
     ' Usamos .Range(columna_numero) para escribir en la celda
-    
     ' Col 1: SERIE DOCUMENTAL
     newRow.Range(1).Value = datos("Serie")
     
@@ -54,7 +73,7 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     
     ' Col 4: N° DE EXPEDIENTE
     newRow.Range(4).NumberFormat = "@"
-    newRow.Range(4).Value = datos("NumExpediente")
+    newRow.Range(4).Value = codigoExpedienteFinal
     
     ' Col 5: NOMBRE DEL EXPEDIENTE
     newRow.Range(5).Value = datos("Nombre")

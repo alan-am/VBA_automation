@@ -71,10 +71,10 @@ Private Sub CargarListasDinamicas()
     Me.cmbSoporte.Clear
 
     ' Cargar Serie Documental(Columna B)
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).Row
     For i = 2 To lastRow
-        If Trim(ws.Cells(i, "B").Value) <> "" Then
-            Me.cmbSerie.AddItem ws.Cells(i, "B").Value
+        If Trim(ws.Cells(i, "D").Value) <> "" Then
+            Me.cmbSerie.AddItem ws.Cells(i, "D").Value
         End If
     Next i
     

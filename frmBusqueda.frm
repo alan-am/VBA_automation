@@ -114,44 +114,69 @@ Private Sub cmbSeccion_Change()
     On Error GoTo 0
 End Sub
 
-' BOTONES
+' --- EN frmBusqueda ---
+
 Private Sub btnAceptar_Click()
-    ' VALIDACIÓN Seccion obligatoria
+    ' VALIDACIÓN SECCION ESCOGIDA
     If Trim(Me.cmbSeccion.Value) = "" Then
         MsgBox "Debe seleccionar una Sección.", vbExclamation
         Me.cmbSeccion.SetFocus
         Exit Sub
     End If
     
-    
-    ' ESCRITURA EN LA HOJA
     Dim wsActiva As Worksheet
+    Dim filaConfig As Long
+    Dim codSeccion As String
+    Dim codSubseccion As String
+    Dim codSeleccionado As String
+    
+    ' Deficion constantes para la lógica de seleccion de codigo EXP
+    Const CODIGO_DEFECTO_TABLA As String = "###"
+    Const CODIGO_DESCONOCIDO As String = "???"
+    
     Set wsActiva = ActiveSheet
     
-    On Error Resume Next
-    ' Escribir Sección (Celda E5)
-    wsActiva.Range("E5").Value = Me.cmbSeccion.Value
+    ' BUSCAR CÓDIGOS
+    filaConfig = BuscarFilaConfig(Me.cmbSeccion.Value, Me.cmbSubseccion.Value)
     
-    ' Escribir Subsección (Celda E6) - Puede ir vacía
+    If filaConfig > 0 Then
+        codSeccion = Trim(wsConfig.Cells(filaConfig, "L").Value)
+        codSubseccion = Trim(wsConfig.Cells(filaConfig, "O").Value)
+    Else
+        codSeccion = CODIGO_DEFECTO_TABLA
+        codSubseccion = CODIGO_DEFECTO_TABLA
+    End If
+
+    ' ORDEN DE PRIORIDAD
+    '  a. Existe Subsección seleccionada
+    If Me.cmbSubseccion.Value <> "" Then
+        If codSubseccion <> CODIGO_DEFECTO_TABLA And codSubseccion <> "" Then
+            codSeleccionado = codSubseccion
+        Else
+            codSeleccionado = CODIGO_DESCONOCIDO
+        End If
+        
+    ' B. Solo hay Sección
+    Else
+        If codSeccion <> CODIGO_DEFECTO_TABLA And codSeccion <> "" Then
+            codSeleccionado = codSeccion
+        Else
+            codSeleccionado = CODIGO_DESCONOCIDO
+        End If
+    End If
+    ' ------------------------
+
+    On Error Resume Next
+    
+    ' Escribir la seleccion en la tabla
+    wsActiva.Range("E5").Value = Me.cmbSeccion.Value
     wsActiva.Range("E6").Value = Me.cmbSubseccion.Value
     
-    ' =========================================================================
-    ' LÓGICA FUTURA PARA CÓDIGOS DE EXPEDIENTE
-    
-    ' Aquí irá la lógica para buscar los acrónimos en Columnas M y O
-    ' y guardarlos en celdas ocultas (ej. Z5 y Z6).
-    
-    ' Dim filaEncontrada As Long
-    ' filaEncontrada = BuscarFilaConfig(Me.cmbSeccion.Value, Me.cmbSubseccion.Value)
-    '
-    ' If filaEncontrada > 0 Then
-    '     wsActiva.Range("Z5").Value = wsConfig.Cells(filaEncontrada, "M").Value ' Cód Sección
-    '     wsActiva.Range("Z6").Value = wsConfig.Cells(filaEncontrada, "O").Value ' Cód Subsección
-    ' End If
-    ' =========================================================================
+    ' Guardado de codigo en la hoja config celda Q2
+    Hoja4.Range("Q2").Value = codSeleccionado
     
     If Err.Number <> 0 Then
-        MsgBox "Error al escribir en la hoja.", vbCritical
+        MsgBox "Error al escribir los datos.", vbCritical
         Err.Clear
     End If
     On Error GoTo 0

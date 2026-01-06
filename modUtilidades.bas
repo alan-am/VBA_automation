@@ -112,3 +112,41 @@ ErrorHandler:
     MsgBox "Error: " & Err.Description
 End Sub
 
+
+Function GenerarNuevoCodigoExpediente() As String
+    ' Esta función calcula el código visualmente para el formulario
+    
+    Dim wsConfig As Worksheet
+    Dim wsInventario As Worksheet
+    Dim tbl As ListObject
+    Dim codSeleccionado As String
+    Dim siguienteNumero As Long
+    
+    ' Definición de Constantes
+    Const FORMATO_PREFIJO As String = "ESPOL-"
+    Const CODIGO_DESCONOCIDO As String = "???"
+    Const NOMBRE_TABLA As String = "tabla_test89"
+    
+    ' Referencias
+    Set wsInventario = ThisWorkbook.Sheets("Inventario General")
+    On Error Resume Next
+    Set tbl = wsInventario.ListObjects(NOMBRE_TABLA)
+    On Error GoTo 0
+    
+    If tbl Is Nothing Then
+        GenerarNuevoCodigoExpediente = "Error-Tabla"
+        Exit Function
+    End If
+    
+    ' Leer Código de Sección
+    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
+    If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
+    
+    ' cantidad filas actual + 1
+    siguienteNumero = tbl.ListRows.Count + 1
+    
+    ' Armar el String
+    GenerarNuevoCodigoExpediente = FORMATO_PREFIJO & codSeleccionado & "-" & Format(siguienteNumero, "000")
+
+End Function
+

@@ -13,7 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'frmDatosCarpeta
+'frmDatosCarpeta (Digital)
 
 ' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object
@@ -30,6 +30,9 @@ Private Sub UserForm_Initialize()
     Me.cmbDestino.Value = "Conservación"
     Me.cmbSoporte.Value = "Digital"
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
+    
+    'Pre-llenar el N° Expediente
+    Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me
@@ -213,6 +216,8 @@ Private Sub btnInsertar_Click()
         
         ' Resetea el diccionario
         Set pDatosCarpeta = Nothing
+        ' regenerar codigo para l sgte registro.
+        Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
     Else
         MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
     End If

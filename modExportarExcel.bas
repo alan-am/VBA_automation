@@ -48,18 +48,6 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     ' y "empuja" cualquier contenido de abajo
     Set newRow = tbl.ListRows.Add(AlwaysInsert:=True)
     
-    
-    ' PREPARACION N° EXPEDIENTE
-    ' leer Q2
-    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
-    ' Validación de seguridad por si Q2 está vacío
-    If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
-    ' Calcular el Correlativo
-    correlativo = tbl.ListRows.Count
-    ' Armar el String Final (ESPOL - CODIGO - SECUENCIA)
-    codigoExpedienteFinal = FORMATO_PREFIJO & codSeleccionado & "-" & Format(correlativo, "000")
-    
-    
     ' Escritura de datos en la nueva fila
     ' Usamos .Range(columna_numero) para escribir en la celda
     ' Col 1: SERIE DOCUMENTAL
@@ -73,7 +61,7 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     
     ' Col 4: N° DE EXPEDIENTE
     newRow.Range(4).NumberFormat = "@"
-    newRow.Range(4).Value = codigoExpedienteFinal
+    newRow.Range(4).Value = datos("NumExpediente")
     
     ' Col 5: NOMBRE DEL EXPEDIENTE
     newRow.Range(5).Value = datos("Nombre")

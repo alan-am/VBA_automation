@@ -31,6 +31,9 @@ Private Sub UserForm_Initialize()
     Me.cmbSoporte.Value = "Físico"
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
     Me.txtFechaCreacion.Value = "dd/mm/aaaa"
+    Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+    
+    
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me
@@ -196,6 +199,8 @@ Private Sub btnInsertar_Click()
     datosManuales("NumCaja") = Me.txtNumCaja.Value
     datosManuales("Soporte") = Me.cmbSoporte.Value
     datosManuales("Destino") = Me.cmbDestino.Value
+        
+
 
     
     ' --- NO OBLIGATORIOS CON DEFAULT ---
@@ -206,16 +211,11 @@ Private Sub btnInsertar_Click()
     Else
         datosManuales("FechaCierre") = "dd/mm/aaaa"
     End If
-    
-    ' N° Expediente (Default: ---)
-    If Trim(Me.txtNumExpediente.Value) = "" Then
-        datosManuales("NumExpediente") = "---"
-    Else
-        datosManuales("NumExpediente") = Me.txtNumExpediente.Value
-    End If
+
     
     ' Observaciones (Se permite vacío)
     datosManuales("Observaciones") = Me.txtObservaciones.Value
+    datosManuales("NumExpediente") = Me.txtNumExpediente.Value
     
     ' CAMPOS UBICACIÓN TOPOGRÁFICA (Default: NN)
 
@@ -246,6 +246,7 @@ Private Sub btnInsertar_Click()
     If ExportarDatosInventario(datosManuales) Then
         MsgBox "Registro Guardado con éxito.", vbInformation
         btnLimpiar_Click
+        Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
     Else
         MsgBox "Error al guardar la carpeta.", vbCritical
     End If

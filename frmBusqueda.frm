@@ -64,7 +64,7 @@ Private Sub CargarSeccionesUnicas()
     If lastRow < 2 Then Exit Sub
     
     'Cargamos
-    For i = 2 To lastRow
+    For i = 3 To lastRow
         seccion = Trim(wsConfig.Cells(i, "M").Value)
         
         If seccion <> "" And Not dictUnicos.Exists(seccion) Then

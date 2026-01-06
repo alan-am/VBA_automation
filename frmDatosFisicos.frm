@@ -81,35 +81,35 @@ Private Sub CargarListasDinamicas()
     Me.cmbSoporte.Clear
     
     
-    ' Cargar Serie Documental(Columna B)
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
-    For i = 2 To lastRow
-        If Trim(ws.Cells(i, "B").Value) <> "" Then
-            Me.cmbSerie.AddItem ws.Cells(i, "B").Value
+   ' Cargar Serie Documental(Columna I)
+    lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "I").Value) <> "" Then
+            Me.cmbSerie.AddItem ws.Cells(i, "I").Value
         End If
     Next i
     
-    ' Cargar Subserie Documental(Columna C)
-    lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row
-    For i = 2 To lastRow
-        If Trim(ws.Cells(i, "C").Value) <> "" Then
-            Me.cmbSubserie.AddItem ws.Cells(i, "C").Value
+    ' Cargar Subserie Documental(Columna J)
+    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "J").Value) <> "" Then
+            Me.cmbSubserie.AddItem ws.Cells(i, "J").Value
         End If
     Next i
     
-    ' Cargar Destino Final (Columna D)
-    lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).Row
-    For i = 2 To lastRow
-        If Trim(ws.Cells(i, "D").Value) <> "" Then
-            Me.cmbDestino.AddItem ws.Cells(i, "D").Value
+    ' Cargar Destino Final (Columna G)
+    lastRow = ws.Cells(ws.Rows.Count, "G").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "G").Value) <> "" Then
+            Me.cmbDestino.AddItem ws.Cells(i, "G").Value
         End If
     Next i
     
-    ' Cargar Soporte (Columna E)
-    lastRow = ws.Cells(ws.Rows.Count, "E").End(xlUp).Row
-    For i = 2 To lastRow
-        If Trim(ws.Cells(i, "E").Value) <> "" Then
-            Me.cmbSoporte.AddItem ws.Cells(i, "E").Value
+    ' Cargar Soporte (Columna H)
+    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "H").Value) <> "" Then
+            Me.cmbSoporte.AddItem ws.Cells(i, "H").Value
         End If
     Next i
     

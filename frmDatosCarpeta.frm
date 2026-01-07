@@ -16,8 +16,9 @@ Attribute VB_Exposed = False
 'frmDatosCarpeta (Digital)
 
 ' Variable a nivel de formulario para guardar los datos de la carpeta
-Private pDatosCarpeta As Object
-
+Private pDatosCarpeta As Object    ' info de carpeta en proceso
+Private ColaCarpetas As Collection ' Cola de rutas pendientes
+Private ModoMasivo As Boolean      ' Bandera para modo de flujo
 
 
 ' Metodo de inicializacion del forms
@@ -43,16 +44,58 @@ Private Sub btnLimpiar_Click()
 End Sub
 
 Private Sub btnSeleccionarCarpeta_Click()
-    ' Llama a la función que abrimos diálogo y llena los TextBox
+    
     Dim folderPath As String
+    Dim fso As Object, carpetaMadre As Object, subCarpeta As Object
+    Dim respuesta As VbMsgBoxResult
+    
+    'muestra del dialogo de seleccio
     folderPath = SeleccionarCarpeta()
     
-    If folderPath <> "" Then
-    ' Obtiene el diccionario y lo guarda en la variable del formulario
-        Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath) ' modUtilidades
+    If folderPath = "" Then Exit Sub
+    
+    Set fso = CreateObject("Scripting.FileSystemObject") 'inicializacion objeto Carpeta
+    Set carpetaMadre = fso.GetFolder(folderPath)
+    
+    'Verificacion de disponibilidad de subcarpetas y pregunta
+    If carpetaMadre.SubFolders.Count > 0 Then
+        respuesta = MsgBox("La carpeta seleccionada contiene " & carpetaMadre.SubFolders.Count & " subcarpetas." & vbCrLf & vbCrLf & _
+                           "¿Desea activar el 'Modo Secuencial' para procesarlas continuamente?" & vbCrLf & _
+                           "SÍ: Carga la primera subcarpeta y prepara la cola." & vbCrLf & _
+                           "NO: Analiza solo la carpeta seleccionada (comportamiento normal).", _
+                           vbYesNo + vbQuestion, "Modo de Análisis")
         
-        MostrarDatosCarpeta pDatosCarpeta 'modInicio
+        If respuesta = vbYes Then
+                   ' Activar bandera modo flujo
+                   ModoMasivo = True
+                   Set ColaCarpetas = New Collection
+                   
+                   ' Llenar la cola con las subcarpetas
+                   For Each subCarpeta In carpetaMadre.SubFolders
+                       ColaCarpetas.Add subCarpeta.Path
+                   Next subCarpeta
+                   
+                   MsgBox "Se han puesto en cola " & ColaCarpetas.Count & " carpetas. Empecemos.", vbInformation
+                   
+                   ' Cargar la primera de la lista
+                   CargarSiguienteDeLaCola
+                   Exit Sub
+        End If
     End If
+    
+    'Seteo modo normal y procesado de la carpeta elegida
+    ModoMasivo = False
+    Set ColaCarpetas = Nothing
+    ProcesarCarpetaIndividual folderPath
+    
+    'If folderPath <> "" Then
+    ' Obtiene el diccionario y lo guarda en la variable del formulario
+        'Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath) ' modUtilidades
+        
+        'MostrarDatosCarpeta pDatosCarpeta 'modInicio
+    'End If
+    
+    
 End Sub
 
 ' Carga de opciones para los comboBox en el forms
@@ -67,7 +110,7 @@ Private Sub CargarListasDinamicas()
     ' Definicion hoja de configuración
     Set ws = ThisWorkbook.Sheets("Config")
     
-    ' Reinicion de los comboBox
+    ' Reinicio de los comboBox
     Me.cmbSerie.Clear
     Me.cmbSubserie.Clear
     Me.cmbDestino.Clear
@@ -211,16 +254,82 @@ Private Sub btnInsertar_Click()
     If ExportarDatosInventario(pDatosCarpeta) Then
         MsgBox "Expediente '" & pDatosCarpeta("Nombre") & "' guardado con éxito.", vbInformation, "Exportación Completa"
         
-        ' Limpiar formulario para siguiente ingreso
-        LimpiarFormulario
-        
-        ' Resetea el diccionario
-        Set pDatosCarpeta = Nothing
-        ' regenerar codigo para l sgte registro.
-        Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+        If ModoMasivo Then
+            ' Se mantiene Serie, Subserie, Destino, Soporte, Caja, etc.
+            ' Solo limpiamos los datos específicos de la carpeta anterior.
+            LimpiarSoloDatosVariables
+            
+            ' Cargar inmediatamente la siguiente
+            CargarSiguienteDeLaCola
+        Else
+            ' MODO NORMAL
+            LimpiarFormulario
+            Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+            Set pDatosCarpeta = Nothing
+        End If
     Else
         MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
     End If
     
+    
+    
+End Sub
+
+'Funcion de gestion de avance de modo masivo
+Private Sub CargarSiguienteDeLaCola()
+    Dim siguienteRuta As String
+    
+    If ColaCarpetas.Count > 0 Then
+        'Procesar siguiente ruta(subcarpeta)
+        siguienteRuta = ColaCarpetas(1)
+        
+        ' Actualizar cola
+        ColaCarpetas.Remove 1
+        
+        ' Procesar
+        ProcesarCarpetaIndividual siguienteRuta
+        
+        ' FUTURO UX: Avisar visualmente
+        ' Podría poner un Label en el form que diga "Procesando carpeta..."
+    Else
+        ' Se acabó la cola
+        MsgBox "¡Proceso terminado! Se han analizado todas las subcarpetas.", vbInformation
+        ModoMasivo = False
+        Me.Caption = "Gestor de Carpetas Digitales"
+        LimpiarFormulario
+    End If
+End Sub
+
+
+' Funcion auxiliar para procesar una ruta específica
+Private Sub ProcesarCarpetaIndividual(ruta As String)
+    ' Obtencion de datos y guardado
+    Set pDatosCarpeta = ObtenerInfoCarpeta(ruta)
+    MostrarDatosCarpeta pDatosCarpeta ' modInicio
+    
+    ' Generar Código de Expediente Sugerido
+    Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+    
+    ' Actualizar título para UX
+    If ModoMasivo Then
+        Me.Caption = "Gestor Digital - Pendientes: " & ColaCarpetas.Count
+    Else
+        Me.Caption = "Gestor de Carpetas Digitales"
+    End If
+End Sub
+
+' --- EN frmDatosCarpeta (Nuevo método) ---
+
+Private Sub LimpiarSoloDatosVariables()
+    ' Borramos solo lo que cambia de carpeta a carpeta
+    Me.txtNombreCarpeta.Value = ""
+    Me.txtRutaCarpeta.Value = ""
+    Me.txtCantidadArchivos.Value = ""
+    Me.txtTamanoTotal.Value = ""
+    Me.txtObservaciones.Value = ""
+    Me.txtFechaCreacion.Value = ""
+    Me.txtFechaCierre.Value = "dd/mm/aaaa"
+
+    ' lo demas se mantiene(excepto N° expediente)
 End Sub
 

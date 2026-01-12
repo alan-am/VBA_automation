@@ -22,7 +22,6 @@ Private ModoMasivo As Boolean      ' Bandera para modo de flujo
 
 
 
-
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
     ' Carga de las listas dinámicas
@@ -41,9 +40,6 @@ Private Sub btnCerrar_Click()
     Unload Me
 End Sub
 
-Private Sub btnLimpiar_Click()
-    LimpiarFormulario 'modUtilidades
-End Sub
 
 Private Sub btnSeleccionarCarpeta_Click()
     
@@ -315,8 +311,10 @@ Private Sub ProcesarCarpetaIndividual(ruta As String)
     ' Actualizar título para UX
     If ModoMasivo Then
         Me.Caption = "Gestor Digital - Pendientes: " & ColaCarpetas.Count
+        Me.btnOmitir.Visible = True
     Else
         Me.Caption = "Gestor de Carpetas Digitales"
+        Me.btnOmitir.Visible = False
     End If
 End Sub
 
@@ -335,3 +333,15 @@ Private Sub LimpiarSoloDatosVariables()
     ' lo demas se mantiene(excepto N° expediente)
 End Sub
 
+Private Sub btnOmitir_Click()
+    If ModoMasivo Then
+        LimpiarSoloDatosVariables
+        CargarSiguienteDeLaCola
+    End If
+End Sub
+
+
+'DESHABILITADO
+Private Sub btnLimpiar_Click()
+    LimpiarFormulario 'modUtilidades
+End Sub

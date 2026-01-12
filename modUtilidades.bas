@@ -71,18 +71,7 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     Set ObtenerInfoCarpeta = info
 End Function
 
-' Limpia todos los campos del formulario
-Sub LimpiarFormulario()
-    With frmDatosCarpeta
-        .txtRutaCarpeta.Value = ""
-        .txtNombreCarpeta.Value = ""
-        .txtFechaCreacion.Value = ""
-        .txtCantidadArchivos.Value = ""
-        .txtTamanoTotal.Value = ""
-        .txtObservaciones.Value = ""
-        .txtFechaCierre.Value = "dd/mm/aaaa"
-    End With
-End Sub
+
 
 Private Sub buscarSeccion_Click()
 
@@ -150,3 +139,17 @@ Function GenerarNuevoCodigoExpediente() As String
 
 End Function
 
+
+'DESHABILITADO
+' Limpia todos los campos del formulario
+Sub LimpiarFormulario()
+    With frmDatosCarpeta
+        .txtRutaCarpeta.Value = ""
+        .txtNombreCarpeta.Value = ""
+        .txtFechaCreacion.Value = ""
+        .txtCantidadArchivos.Value = ""
+        .txtTamanoTotal.Value = ""
+        .txtObservaciones.Value = ""
+        .txtFechaCierre.Value = "dd/mm/aaaa"
+    End With
+End Sub

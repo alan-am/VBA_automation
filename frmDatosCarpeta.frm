@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosCarpeta 
    Caption         =   "Gestor de Carpetas Digitales"
-   ClientHeight    =   7335
+   ClientHeight    =   7305
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   7515
@@ -19,6 +19,8 @@ Attribute VB_Exposed = False
 Private pDatosCarpeta As Object    ' info de carpeta en proceso
 Private ColaCarpetas As Collection ' Cola de rutas pendientes
 Private ModoMasivo As Boolean      ' Bandera para modo de flujo
+
+
 
 
 ' Metodo de inicializacion del forms
@@ -49,7 +51,7 @@ Private Sub btnSeleccionarCarpeta_Click()
     Dim fso As Object, carpetaMadre As Object, subCarpeta As Object
     Dim respuesta As VbMsgBoxResult
     
-    'muestra del dialogo de seleccio
+    'muestra del dialogo de seleccion
     folderPath = SeleccionarCarpeta()
     
     If folderPath = "" Then Exit Sub

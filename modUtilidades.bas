@@ -23,6 +23,8 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     Dim info As Object
     Dim fechaMax As Date
     Dim fechaArchivo As Date
+    Dim conteoFojas As Long
+    
     
     Set fso = CreateObject("Scripting.FileSystemObject")
     Set carpeta = fso.GetFolder(folderPath)
@@ -30,17 +32,19 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     
     ' inicializacion variable de fecha Max
     fechaMax = 0
+    conteoFojas = 0
     
     'Busqueda de la fecha de cierre
     For Each archivo In carpeta.Files
-        ' IMPORTANTE: se excluye el propio archivo Excel si está dentro de la carpeta
-        ' Usamos UCase para asegurar que la comparación no falle por mayúsculas/minúsculas
         If (UCase(archivo.Path) <> UCase(ThisWorkbook.FullName)) And _
-           (Left(archivo.Name, 2) <> "~$") Then
+           (Left(archivo.Name, 1) <> "~") And _
+           (LCase(Right(archivo.Name, 4)) <> ".tmp") Then
             
+            ' AUMENTAMOS # Fojas
+            conteoFojas = conteoFojas + 1
+            
+            ' Seteo de fecha
             fechaArchivo = archivo.DateLastModified
-            
-            ' Si la fecha de este archivo es mayor a la que tenemos guardada, actualizamos
             If fechaArchivo > fechaMax Then
                 fechaMax = fechaArchivo
             End If
@@ -54,7 +58,7 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     'Seteo de demas datos
     info("Nombre") = carpeta.Name
     info("Ruta") = carpeta.Path
-    info("CantidadArchivos") = carpeta.Files.Count
+    info("CantidadArchivos") = conteoFojas
     
     ' seteamos los bytes a KB(/1024) y redondeamos
     info("TamanoTotal") = Round(carpeta.Size / 1024, 1)

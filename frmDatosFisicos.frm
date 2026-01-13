@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosFisicos
    ClientHeight    =   7575
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   7515
+   ClientWidth     =   7440
    OleObjectBlob   =   "frmDatosFisicos.frx":0000
    StartUpPosition =   2  'Centrar en pantalla
 End

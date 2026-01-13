@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDatosCarpeta
    ClientHeight    =   7305
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   7515
+   ClientWidth     =   7455
    OleObjectBlob   =   "frmDatosCarpeta.frx":0000
    StartUpPosition =   2  'Centrar en pantalla
 End
@@ -74,9 +74,7 @@ Private Sub btnSeleccionarCarpeta_Click()
                    For Each subCarpeta In carpetaMadre.SubFolders
                        ColaCarpetas.Add subCarpeta.Path
                    Next subCarpeta
-                   
-                   MsgBox "Iniciar registro de " & ColaCarpetas.Count & " carpetas.", vbInformation
-                   
+                        
                    ' Cargar la primera de la lista
                    CargarSiguienteDeLaCola
                    Exit Sub
@@ -293,7 +291,7 @@ Private Sub CargarSiguienteDeLaCola()
         ' Podría poner un Label en el form que diga "Procesando carpeta..."
     Else
         ' Se acabó la cola
-        MsgBox "Proceso terminado, Se han registrado todas las subcarpetas.", vbInformation
+        MsgBox "Proceso terminado, se han registrado todas las subcarpetas.", vbInformation
         ModoMasivo = False
         Me.Caption = "Gestor de Carpetas Digitales"
         LimpiarFormulario

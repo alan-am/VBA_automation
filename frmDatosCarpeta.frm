@@ -22,6 +22,8 @@ Private ModoMasivo As Boolean      ' Bandera para modo de flujo
 
 
 
+
+
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
     ' Carga de las listas dinámicas
@@ -58,9 +60,9 @@ Private Sub btnSeleccionarCarpeta_Click()
     'Verificacion de disponibilidad de subcarpetas y pregunta
     If carpetaMadre.SubFolders.Count > 0 Then
         respuesta = MsgBox("La carpeta seleccionada contiene " & carpetaMadre.SubFolders.Count & " subcarpetas." & vbCrLf & vbCrLf & _
-                           "¿Desea activar el 'Modo Secuencial' para procesarlas continuamente?" & vbCrLf & _
-                           "SÍ: Carga la primera subcarpeta y prepara la cola." & vbCrLf & _
-                           "NO: Analiza solo la carpeta seleccionada (comportamiento normal).", _
+                           "¿Activar el 'Modo Secuencial' para procesarlas continuamente?" & vbCrLf & _
+                           "SÍ: Analiza todas las subcarpetas ." & vbCrLf & _
+                           "NO: Analiza solo la carpeta seleccionada.", _
                            vbYesNo + vbQuestion, "Modo de Análisis")
         
         If respuesta = vbYes Then
@@ -73,7 +75,7 @@ Private Sub btnSeleccionarCarpeta_Click()
                        ColaCarpetas.Add subCarpeta.Path
                    Next subCarpeta
                    
-                   MsgBox "Se han puesto en cola " & ColaCarpetas.Count & " carpetas. Empecemos.", vbInformation
+                   MsgBox "Iniciar registro de " & ColaCarpetas.Count & " carpetas.", vbInformation
                    
                    ' Cargar la primera de la lista
                    CargarSiguienteDeLaCola
@@ -149,7 +151,7 @@ Private Sub CargarListasDinamicas()
     Exit Sub
 
 ErrorHandler:
-    MsgBox "Error al cargar las listas en configuración." & vbCrLf & _
+    MsgBox "Error al cargar las listas de la hoja de configuración." & vbCrLf & _
            "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
            vbCritical, "Error de Carga"
 End Sub
@@ -266,7 +268,7 @@ Private Sub btnInsertar_Click()
             Set pDatosCarpeta = Nothing
         End If
     Else
-        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Exportación"
+        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Registro"
     End If
     
     
@@ -291,7 +293,7 @@ Private Sub CargarSiguienteDeLaCola()
         ' Podría poner un Label en el form que diga "Procesando carpeta..."
     Else
         ' Se acabó la cola
-        MsgBox "¡Proceso terminado! Se han analizado todas las subcarpetas.", vbInformation
+        MsgBox "Proceso terminado, Se han registrado todas las subcarpetas.", vbInformation
         ModoMasivo = False
         Me.Caption = "Gestor de Carpetas Digitales"
         LimpiarFormulario
@@ -319,7 +321,6 @@ Private Sub ProcesarCarpetaIndividual(ruta As String)
     End If
 End Sub
 
-' --- EN frmDatosCarpeta (Nuevo método) ---
 
 Private Sub LimpiarSoloDatosVariables()
     ' Borramos solo lo que cambia de carpeta a carpeta
@@ -330,7 +331,6 @@ Private Sub LimpiarSoloDatosVariables()
     Me.txtObservaciones.Value = ""
     Me.txtFechaCreacion.Value = ""
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
-
     ' lo demas se mantiene(excepto N° expediente)
 End Sub
 

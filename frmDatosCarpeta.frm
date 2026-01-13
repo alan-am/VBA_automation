@@ -295,6 +295,7 @@ Private Sub CargarSiguienteDeLaCola()
         ModoMasivo = False
         Me.Caption = "Gestor de Carpetas Digitales"
         LimpiarFormulario
+        Unload Me
     End If
 End Sub
 

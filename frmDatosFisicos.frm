@@ -15,14 +15,19 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 'frmDatosFisicos
-
+Option Explicit
 
 ' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object
 
+Private COLOR_BOTON_ACTIVO As Long
+Private COLOR_BOTON_INACTIVO As Long
+
 
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
+    COLOR_BOTON_ACTIVO = RGB(31, 73, 125)   ' Azul Oscuro
+    COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
     ' Carga de las listas dinámicas
     CargarListasDinamicas
     
@@ -36,9 +41,6 @@ Private Sub UserForm_Initialize()
     
     
 End Sub
-Private Sub btnCerrar_Click()
-    Unload Me
-End Sub
 
 Private Sub btnLimpiar_Click()
     ' Limpiar campos manuales
@@ -47,23 +49,8 @@ Private Sub btnLimpiar_Click()
     Me.txtCantidadArchivos.Value = "" ' Fojas
     Me.txtObservaciones.Value = ""
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
-    Me.txtNumExpediente.Value = ""
 End Sub
 
-Private Sub btnSeleccionarCarpeta_Click()
-    ' Llama a la función que abrimos diálogo y llena los TextBox
-    Dim folderPath As String
-    folderPath = SeleccionarCarpeta()
-    
-    If folderPath <> "" Then
-    ' Obtiene el diccionario y lo guarda en la variable del formulario
-        Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath) ' modUtilidades
-        
-        MostrarDatosCarpeta pDatosCarpeta 'modInicio
-    End If
-End Sub
-
-' Carga de opciones para los comboBox en el forms
 ' los datos se cargan a partir de la hoja "Config"
 Private Sub CargarListasDinamicas()
     Dim ws As Worksheet
@@ -125,11 +112,6 @@ End Sub
 ' Funcion btn Insertar Datos
 Private Sub btnInsertar_Click()
 
-    'MEJORA -> Deshabilitar boton de click , al presionar, para evitar doble click.
-    'Me.btnInsertarDatos.Enabled = False
-    'Me.btnInsertarDatos.Enabled = True
-
-
     ' VALIDACIÓNES DE CAMPOS OBLIGATORIOS
     ' Nombre Carpeta
     If Trim(Me.txtNombreCarpeta.Value) = "" Then
@@ -185,9 +167,13 @@ Private Sub btnInsertar_Click()
         Exit Sub
     End If
 
-    ' PREPARACIÓN DE DATOS (y valores por defecto)
-
+    Me.btnInsertar.Enabled = False
+    Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
+    Me.Repaint ' actualización visual
     
+    On Error GoTo ManejoError
+
+    ' PREPARACIÓN DE DATOS (y valores por defecto)
     Dim datosManuales As Object
     Set datosManuales = CreateObject("Scripting.Dictionary")
     
@@ -201,11 +187,7 @@ Private Sub btnInsertar_Click()
     datosManuales("Soporte") = Me.cmbSoporte.Value
     datosManuales("Destino") = Me.cmbDestino.Value
         
-
-
-    
     ' --- NO OBLIGATORIOS CON DEFAULT ---
-    
     ' Fecha de Cierre (Default: dd/mm/aaaa)
     If IsDate(Me.txtFechaCierre.Value) Then
         datosManuales("FechaCierre") = CDate(Me.txtFechaCierre.Value)
@@ -219,7 +201,6 @@ Private Sub btnInsertar_Click()
     datosManuales("NumExpediente") = Me.txtNumExpediente.Value
     
     ' CAMPOS UBICACIÓN TOPOGRÁFICA (Default: NN)
-
     If Trim(Me.txtZona.Value) = "" Then
         datosManuales("Zona") = "NN"
     Else
@@ -243,14 +224,22 @@ Private Sub btnInsertar_Click()
     
 
     ' ENVIAR A EXCEL
-
     If ExportarDatosInventario(datosManuales) Then
         MsgBox "Registro Guardado con éxito.", vbInformation
         btnLimpiar_Click
         Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+        Me.btnInsertar.Enabled = True
+        Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
     Else
-        MsgBox "Error al guardar la carpeta.", vbCritical
+        GoTo ManejoError
     End If
-    
+    Exit Sub
+ManejoError:
+    Me.btnInsertar.Enabled = True
+    Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
+    MsgBox "Error al guardar: " & Err.Description, vbCritical
+End Sub
+Private Sub btnCerrar_Click()
+    Unload Me
 End Sub
 

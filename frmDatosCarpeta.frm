@@ -17,8 +17,14 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private pDatosCarpeta As Object    ' info de carpeta en proceso
+Private COLOR_BOTON_ACTIVO As Long
+Private COLOR_BOTON_INACTIVO As Long
 
 Private Sub UserForm_Initialize()
+    COLOR_BOTON_ACTIVO = RGB(31, 73, 125)   ' Azul Oscuro
+    COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
+    
+    
     CargarListasDinamicas
     
     ' Seteado valores default de cierto campos
@@ -29,6 +35,9 @@ Private Sub UserForm_Initialize()
     
     'Pre-llenar el N° Expediente
     Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+    
+    Me.btnInsertar.Enabled = False
+    Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
 End Sub
 
 Private Sub btnSeleccionarCarpeta_Click()
@@ -42,6 +51,9 @@ Private Sub btnSeleccionarCarpeta_Click()
         MostrarDatosCarpeta pDatosCarpeta ' modInicio
         
         Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+        
+        Me.btnInsertar.Enabled = True
+        Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
     End If
 End Sub
 ' Carga de opciones para los comboBox en el forms
@@ -138,6 +150,15 @@ Private Sub btnInsertar_Click()
         Me.cmbSoporte.SetFocus
         Exit Sub
     End If
+    
+    
+    ' UX - boton
+    Me.btnInsertar.Enabled = False
+    Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
+    Me.Repaint ' actualización visual
+    
+    
+    On Error GoTo ManejoError
 
     ' PREPARAR DATOS
     pDatosCarpeta("Nombre") = Me.txtNombreCarpeta.Value
@@ -160,6 +181,12 @@ Private Sub btnInsertar_Click()
         pDatosCarpeta("FechaCreacion") = "dd/mm/aaaa"
     End If
     
+    If IsDate(Me.txtFechaCierre.Value) Then
+        pDatosCarpeta("FechaCierre") = CDate(Me.txtFechaCierre.Value)
+    Else
+        pDatosCarpeta("FechaCierre") = "dd/mm/aaaa"
+    End If
+    
     ' Ubicación por defecto para carpetas digitales
     pDatosCarpeta("Zona") = "NN"
     pDatosCarpeta("Estanteria") = "NN"
@@ -173,9 +200,16 @@ Private Sub btnInsertar_Click()
         LimpiarFormulario
         Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
         Set pDatosCarpeta = Nothing
+        Me.btnInsertar.Enabled = False
+        Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
     Else
-                MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Registro"
+        GoTo ManejoError
     End If
+    Exit Sub
+ManejoError:
+        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Registro" & Err.Description, vbCritical
+        Me.btnInsertar.Enabled = True
+        Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
 End Sub
 
 Private Sub btnCerrar_Click()

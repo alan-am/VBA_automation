@@ -1,5 +1,14 @@
 Attribute VB_Name = "modUtilidades"
 'modUtilidades
+' **************************************************************************
+' !
+' **************************************************************************
+' Este código maneja distintas utilidades para la seleccion y analisis de carpetas digitales.
+'
+' IMPORTANTE:
+' - Evite alteraciones.
+' - Si borra este código, el formulario dejará de funcionar automáticamente.
+' **************************************************************************
 
 ' Muestra el diálogo para seleccionar carpeta y devuelve la ruta
 Function SeleccionarCarpeta() As String

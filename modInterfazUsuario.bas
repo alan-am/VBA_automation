@@ -28,3 +28,4 @@ End Sub
 Sub AbrirFormularioFisico()
     frmDatosFisicos.Show
 End Sub
+

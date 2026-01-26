@@ -14,19 +14,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 'frmDatosCarpeta (Digital)
+Option Explicit
 
-' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object    ' info de carpeta en proceso
-Private ColaCarpetas As Collection ' Cola de rutas pendientes
-Private ModoMasivo As Boolean      ' Bandera para modo de flujo
 
-
-
-
-
-' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
-    ' Carga de las listas dinámicas
     CargarListasDinamicas
     
     ' Seteado valores default de cierto campos
@@ -38,64 +30,20 @@ Private Sub UserForm_Initialize()
     'Pre-llenar el N° Expediente
     Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
 End Sub
-Private Sub btnCerrar_Click()
-    Unload Me
-End Sub
-
 
 Private Sub btnSeleccionarCarpeta_Click()
-    
     Dim folderPath As String
-    Dim fso As Object, carpetaMadre As Object, subCarpeta As Object
-    Dim respuesta As VbMsgBoxResult
     
-    'muestra del dialogo de seleccion
+    ' Dialogo de seleccion
     folderPath = SeleccionarCarpeta()
     
-    If folderPath = "" Then Exit Sub
-    
-    Set fso = CreateObject("Scripting.FileSystemObject") 'inicializacion objeto Carpeta
-    Set carpetaMadre = fso.GetFolder(folderPath)
-    
-    'Verificacion de disponibilidad de subcarpetas y pregunta
-    If carpetaMadre.SubFolders.Count > 0 Then
-        respuesta = MsgBox("La carpeta seleccionada contiene " & carpetaMadre.SubFolders.Count & " subcarpetas." & vbCrLf & vbCrLf & _
-                           "¿Activar el 'Modo Secuencial' para procesarlas continuamente?" & vbCrLf & _
-                           "SÍ: Analiza todas las subcarpetas ." & vbCrLf & _
-                           "NO: Analiza solo la carpeta seleccionada.", _
-                           vbYesNo + vbQuestion, "Modo de Análisis")
+    If folderPath <> "" Then
+        Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath)
+        MostrarDatosCarpeta pDatosCarpeta ' modInicio
         
-        If respuesta = vbYes Then
-                   ' Activar bandera modo flujo
-                   ModoMasivo = True
-                   Set ColaCarpetas = New Collection
-                   
-                   ' Llenar la cola con las subcarpetas
-                   For Each subCarpeta In carpetaMadre.SubFolders
-                       ColaCarpetas.Add subCarpeta.Path
-                   Next subCarpeta
-                        
-                   ' Cargar la primera de la lista
-                   CargarSiguienteDeLaCola
-                   Exit Sub
-        End If
+        Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
     End If
-    
-    'Seteo modo normal y procesado de la carpeta elegida
-    ModoMasivo = False
-    Set ColaCarpetas = Nothing
-    ProcesarCarpetaIndividual folderPath
-    
-    'If folderPath <> "" Then
-    ' Obtiene el diccionario y lo guarda en la variable del formulario
-        'Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath) ' modUtilidades
-        
-        'MostrarDatosCarpeta pDatosCarpeta 'modInicio
-    'End If
-    
-    
 End Sub
-
 ' Carga de opciones para los comboBox en el forms
 ' los datos se cargan a partir de la hoja "Config"
 Private Sub CargarListasDinamicas()
@@ -154,13 +102,8 @@ ErrorHandler:
            vbCritical, "Error de Carga"
 End Sub
 
-' Funcion btn Insertar Datos
 Private Sub btnInsertar_Click()
-
-    'MEJORA -> Deshabilitar boton de click , al presionar, para evitar doble click.
-    'Me.btnInsertarDatos.Enabled = False
-    'Me.btnInsertarDatos.Enabled = True
-
+    
     ' Validar que los datos de la carpeta no esten vacios
     If pDatosCarpeta Is Nothing Then
         MsgBox "Error: Primero debe seleccionar una carpeta usando el botón 'Examinar...'.", vbCritical, "Acción Requerida"
@@ -195,7 +138,62 @@ Private Sub btnInsertar_Click()
         Me.cmbSoporte.SetFocus
         Exit Sub
     End If
+
+    ' PREPARAR DATOS
+    pDatosCarpeta("Nombre") = Me.txtNombreCarpeta.Value
+    pDatosCarpeta("Ruta") = Me.txtRutaCarpeta.Value
+    pDatosCarpeta("CantidadArchivos") = Me.txtCantidadArchivos.Value
+    pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
     
+    pDatosCarpeta("Serie") = Me.cmbSerie.Value
+    pDatosCarpeta("Subserie") = Me.cmbSubserie.Value
+    pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
+    pDatosCarpeta("Destino") = Me.cmbDestino.Value
+    pDatosCarpeta("Soporte") = Me.cmbSoporte.Value
+    pDatosCarpeta("Observaciones") = Me.txtObservaciones.Value
+    pDatosCarpeta("NumCaja") = IIf(IsNumeric(Me.txtNumCaja.Value), CLng(Me.txtNumCaja.Value), 0)
+    
+    ' Fechas
+    If IsDate(Me.txtFechaCreacion.Value) Then
+        pDatosCarpeta("FechaCreacion") = CDate(Me.txtFechaCreacion.Value)
+    Else
+        pDatosCarpeta("FechaCreacion") = "dd/mm/aaaa"
+    End If
+    
+    ' Ubicación por defecto para carpetas digitales
+    pDatosCarpeta("Zona") = "NN"
+    pDatosCarpeta("Estanteria") = "NN"
+    pDatosCarpeta("Bandeja") = "NN"
+
+    ' GUARDAR
+    If ExportarDatosInventario(pDatosCarpeta) Then
+        MsgBox "Expediente guardado con éxito.", vbInformation
+        
+        ' Limpiar para el siguiente ingreso manual
+        LimpiarFormulario
+        Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
+        Set pDatosCarpeta = Nothing
+    Else
+                MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Registro"
+    End If
+End Sub
+
+Private Sub btnCerrar_Click()
+    Unload Me
+End Sub
+
+Private Sub btnLimpiar_Click()
+    LimpiarFormulario 'modUtilidades
+End Sub
+
+' Funcion btn Insertar Datos
+'Private Sub btnInsertar_Click()
+
+    'MEJORA -> Deshabilitar boton de click , al presionar, para evitar doble click.
+    'Me.btnInsertarDatos.Enabled = False
+    'Me.btnInsertarDatos.Enabled = True
+
+
     ' Validación opcional para la fecha de cierre(Deshabilitado)
     'If Trim(Me.txtFechaCierre.Value) <> "" And Not IsDate(Me.txtFechaCierre.Value) Then
         'MsgBox "El formato de 'Fecha Cierre' no es válido. Use un formato de fecha.", vbExclamation, "Formato Inválido"
@@ -204,143 +202,13 @@ Private Sub btnInsertar_Click()
     'End If
     
     
-    ' seteo de -todos- los datos manuales de la carpeta
-       
-    pDatosCarpeta("Nombre") = Me.txtNombreCarpeta.Value
-    pDatosCarpeta("Ruta") = Me.txtRutaCarpeta.Value
-    pDatosCarpeta("CantidadArchivos") = Me.txtCantidadArchivos.Value
-    pDatosCarpeta("TamanoTotal") = Me.txtTamanoTotal.Value
-    
-    ' Agregamos los nuevos datos manuales
-    pDatosCarpeta("Serie") = Me.cmbSerie.Value
-    pDatosCarpeta("Subserie") = Me.cmbSubserie.Value
-    pDatosCarpeta("NumExpediente") = Me.txtNumExpediente.Value
-    pDatosCarpeta("Destino") = Me.cmbDestino.Value
-    pDatosCarpeta("Soporte") = Me.cmbSoporte.Value
-    pDatosCarpeta("Observaciones") = Me.txtObservaciones.Value
-    
-    ' Campo oculto requerido
-    pDatosCarpeta("UbicacionTopografica") = "NN"
-    
-    ' validar Número de Caja (asegurar que sea numérico)
-    pDatosCarpeta("NumCaja") = IIf(IsNumeric(Me.txtNumCaja.Value), CLng(Me.txtNumCaja.Value), 0)
-    
+    ' seteo de los datos manuales de la carpeta
     '  Validaciones de fecha
     'MEJORA -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha(bloqueando la escritura en excel hasta que tenga buen formato).
     
     
-    ' validar Fecha de Cierre final (asegurar que sea fecha o vacia)
-    If IsDate(Me.txtFechaCierre.Value) Then
-        pDatosCarpeta("FechaCierre") = CDate(Me.txtFechaCierre.Value)
-    Else
-        pDatosCarpeta("FechaCierre") = "dd/mm/aaaa"
-    End If
-    
-    
     ' validar Fecha de creacion(Si no se parsea correctamente, se escribe en el excel como "dd/mm/aaaa")
-    If IsDate(Me.txtFechaCreacion.Value) Then
-        pDatosCarpeta("FechaCreacion") = CDate(Me.txtFechaCreacion.Value)
-    Else
-        pDatosCarpeta("FechaCreacion") = "dd/mm/aaaa"
-    End If
     
     
-    
-    ' --- ESCRIBIR LOS DATOS
-    
-    ' Pasamos el diccionario completo a la función de exportación
-    If ExportarDatosInventario(pDatosCarpeta) Then
-        MsgBox "Expediente '" & pDatosCarpeta("Nombre") & "' guardado con éxito.", vbInformation, "Exportación Completa"
-        
-        If ModoMasivo Then
-            ' Se mantiene Serie, Subserie, Destino, Soporte, Caja, etc.
-            ' Solo limpiamos los datos específicos de la carpeta anterior.
-            LimpiarSoloDatosVariables
-            
-            ' Cargar inmediatamente la siguiente
-            CargarSiguienteDeLaCola
-        Else
-            ' MODO NORMAL
-            LimpiarFormulario
-            Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
-            Set pDatosCarpeta = Nothing
-        End If
-    Else
-        MsgBox "Ocurrió un error al intentar guardar los datos en la hoja de Excel.", vbCritical, "Error de Registro"
-    End If
-    
-    
-    
-End Sub
+'End Sub
 
-'Funcion de gestion de avance de modo masivo
-Private Sub CargarSiguienteDeLaCola()
-    Dim siguienteRuta As String
-    
-    If ColaCarpetas.Count > 0 Then
-        'Procesar siguiente ruta(subcarpeta)
-        siguienteRuta = ColaCarpetas(1)
-        
-        ' Actualizar cola
-        ColaCarpetas.Remove 1
-        
-        ' Procesar
-        ProcesarCarpetaIndividual siguienteRuta
-        
-        ' FUTURO UX: Avisar visualmente
-        ' Podría poner un Label en el form que diga "Procesando carpeta..."
-    Else
-        ' Se acabó la cola
-        MsgBox "Proceso terminado, se han registrado todas las subcarpetas.", vbInformation
-        ModoMasivo = False
-        Me.Caption = "Gestor de Carpetas Digitales"
-        LimpiarFormulario
-        Unload Me
-    End If
-End Sub
-
-
-' Funcion auxiliar para procesar una ruta específica
-Private Sub ProcesarCarpetaIndividual(ruta As String)
-    ' Obtencion de datos y guardado
-    Set pDatosCarpeta = ObtenerInfoCarpeta(ruta)
-    MostrarDatosCarpeta pDatosCarpeta ' modInicio
-    
-    ' Generar Código de Expediente Sugerido
-    Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
-    
-    ' Actualizar título para UX
-    If ModoMasivo Then
-        Me.Caption = "Gestor Digital - Pendientes: " & ColaCarpetas.Count
-        Me.btnOmitir.Visible = True
-    Else
-        Me.Caption = "Gestor de Carpetas Digitales"
-        Me.btnOmitir.Visible = False
-    End If
-End Sub
-
-
-Private Sub LimpiarSoloDatosVariables()
-    ' Borramos solo lo que cambia de carpeta a carpeta
-    Me.txtNombreCarpeta.Value = ""
-    Me.txtRutaCarpeta.Value = ""
-    Me.txtCantidadArchivos.Value = ""
-    Me.txtTamanoTotal.Value = ""
-    Me.txtObservaciones.Value = ""
-    Me.txtFechaCreacion.Value = ""
-    Me.txtFechaCierre.Value = "dd/mm/aaaa"
-    ' lo demas se mantiene(excepto N° expediente)
-End Sub
-
-Private Sub btnOmitir_Click()
-    If ModoMasivo Then
-        LimpiarSoloDatosVariables
-        CargarSiguienteDeLaCola
-    End If
-End Sub
-
-
-'DESHABILITADO
-Private Sub btnLimpiar_Click()
-    LimpiarFormulario 'modUtilidades
-End Sub

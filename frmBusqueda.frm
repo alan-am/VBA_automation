@@ -114,7 +114,6 @@ Private Sub cmbSeccion_Change()
     On Error GoTo 0
 End Sub
 
-' --- EN frmBusqueda ---
 
 Private Sub btnAceptar_Click()
     ' VALIDACIÓN SECCION ESCOGIDA

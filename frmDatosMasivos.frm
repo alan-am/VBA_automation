@@ -18,14 +18,22 @@ Option Explicit
 
 ' Cola de carpetas a procesar
 Private ColaCarpetas As Collection
+Private COLOR_BOTON_ACTIVO As Long
+Private COLOR_BOTON_INACTIVO As Long
 
 Private Sub UserForm_Initialize()
+    'Asignacion colores boton
+    COLOR_BOTON_ACTIVO = RGB(31, 73, 125) ' Azul Oscuro
+    COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
+
     CargarListasDinamicas
     ' Valores por defecto
     Me.txtNumCaja.Value = 0
     Me.cmbDestino.Value = "Conservación"
     Me.cmbSoporte.Value = "Digital"
     Me.btnProcesarLote.Enabled = False ' Deshabilitado
+    Me.btnProcesarLote.BackColor = COLOR_BOTON_INACTIVO
+    
 End Sub
 
 
@@ -44,11 +52,13 @@ Private Sub btnSeleccionarCarpeta_Click()
     Set carpetaMadre = fso.GetFolder(folderPath)
     
     ' VERIFICAR SUBCARPETAS
-If carpetaMadre.SubFolders.Count = 0 Then
+    If carpetaMadre.SubFolders.Count = 0 Then
         MsgBox "La carpeta seleccionada NO contiene subcarpetas." & vbCrLf & _
                "Este modo es para procesar lotes. Use el botón 'Carpeta Digital' para archivos individuales.", vbExclamation
         Me.lblEstado.Caption = "Estado: 0 subcarpetas encontradas."
+        Me.lblEstado.ForeColor = RGB(200, 0, 0)
         Me.btnProcesarLote.Enabled = False
+        Me.btnProcesarLote.BackColor = COLOR_BOTON_INACTIVO
         Exit Sub
     End If
     
@@ -62,10 +72,12 @@ If carpetaMadre.SubFolders.Count = 0 Then
     Me.lblEstado.Caption = "Estado: " & ColaCarpetas.Count & " subcarpetas encontradas."
     Me.lblEstado.ForeColor = RGB(0, 100, 0) ' Verde oscuro
     Me.btnProcesarLote.Enabled = True
+    Me.btnProcesarLote.BackColor = COLOR_BOTON_ACTIVO
     
 End Sub
 
 Private Sub btnProcesarLote_Click()
+
     ' Validaciones
     If Trim(Me.cmbSerie.Value) = "" Or Trim(Me.cmbSubserie.Value) = "" Then
         MsgBox "Serie y Subserie son obligatorias.", vbExclamation
@@ -77,12 +89,20 @@ Private Sub btnProcesarLote_Click()
               "Serie: " & Me.cmbSerie.Value & vbCrLf & _
               "¿Continuar?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
 
+    'Deshabilitacion boton Empezar
+    'UX- cambio a gris oscuro
+    Me.btnProcesarLote.BackColor = COLOR_BOTON_INACTIVO
+    Me.btnProcesarLote.Enabled = False
+    Me.Repaint ' Forzar actualización visual
+    
+    On Error GoTo ManejoError
     ' Procesamiento
     Dim rutaActual As String
     Dim infoCarpeta As Object
     Dim contador As Long
     Dim i As Long
     
+
     Application.ScreenUpdating = False
     
     For i = 1 To ColaCarpetas.Count
@@ -121,6 +141,14 @@ Private Sub btnProcesarLote_Click()
     
     MsgBox "Proceso finalizado. Registros creados: " & contador, vbInformation
     Unload Me
+    Exit Sub
+    
+ManejoError:
+    Application.ScreenUpdating = True
+    Me.btnProcesarLote.BackColor = COLOR_BOTON_ACTIVO
+    Me.btnProcesarLote.Enabled = True
+    MsgBox "Ocurrió un error inesperado durante el procesamiento: " & Err.Description, vbCritical
+
 End Sub
 
 ' CARGA DE LISTAS

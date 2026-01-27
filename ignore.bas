@@ -1,12 +1,4 @@
 Attribute VB_Name = "ignore"
-' **************************************************************************
-' !
-' **************************************************************************
-' Este código maneja la protección automática y fórmulas del índice.
-'
-' IMPORTANTE:
-' **************************************************************************
-
 
 Sub ExportarTodoElCodigoVBA()
     Dim componente As Object

@@ -8,7 +8,7 @@ Attribute VB_Name = "modExportarExcel"
 Function ExportarDatosInventario(datos As Object) As Boolean
     'VAR NOMBRE TABLA
     Dim nombreTabla As String
-    nombreTabla = "tabla_test89"
+    nombreTabla = "tabla_inventario"
     ' Manejador de errores
     On Error GoTo ManejoError
 
@@ -141,7 +141,7 @@ Function GenerarNuevoCodigoExpediente() As String
     ' Definición de Constantes
     Const FORMATO_PREFIJO As String = "ESPOL-"
     Const CODIGO_DESCONOCIDO As String = "???"
-    Const NOMBRE_TABLA As String = "tabla_test89"
+    Const NOMBRE_TABLA As String = "tabla_inventario"
     
     ' Referencias
     Set wsInventario = wskInventario

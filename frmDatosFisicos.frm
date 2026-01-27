@@ -51,64 +51,6 @@ Private Sub btnLimpiar_Click()
     Me.txtFechaCierre.Value = "dd/mm/aaaa"
 End Sub
 
-' los datos se cargan a partir de la hoja "Config"
-Private Sub CargarListasDinamicas()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    
-    On Error GoTo ErrorHandler
-    
-    ' Definicion hoja de configuración
-    Set ws = ThisWorkbook.Sheets("Config")
-    
-    ' Reinicio de los comboBox
-    Me.cmbSerie.Clear
-    Me.cmbSubserie.Clear
-    Me.cmbDestino.Clear
-    Me.cmbSoporte.Clear
-    
-    
-   ' Cargar Serie Documental(Columna I)
-    lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "I").Value) <> "" Then
-            Me.cmbSerie.AddItem ws.Cells(i, "I").Value
-        End If
-    Next i
-    
-    ' Cargar Subserie Documental(Columna J)
-    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "J").Value) <> "" Then
-            Me.cmbSubserie.AddItem ws.Cells(i, "J").Value
-        End If
-    Next i
-    
-    ' Cargar Destino Final (Columna G)
-    lastRow = ws.Cells(ws.Rows.Count, "G").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "G").Value) <> "" Then
-            Me.cmbDestino.AddItem ws.Cells(i, "G").Value
-        End If
-    Next i
-    
-    ' Cargar Soporte (Columna H)
-    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "H").Value) <> "" Then
-            Me.cmbSoporte.AddItem ws.Cells(i, "H").Value
-        End If
-    Next i
-    
-    Exit Sub
-
-ErrorHandler:
-    MsgBox "Error al cargar las listas en configuración." & vbCrLf & _
-           "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
-           vbCritical, "Error de Carga"
-End Sub
-
 ' Funcion btn Insertar Datos
 Private Sub btnInsertar_Click()
 
@@ -120,9 +62,15 @@ Private Sub btnInsertar_Click()
         Exit Sub
     End If
     
-    ' Fojas (CantidadArchivos) - Debe tener valor
+    ' Fojas (CantidadArchivos) - Debe tener valor numerico
     If Trim(Me.txtCantidadArchivos.Value) = "" Then
         MsgBox "El campo 'N° Fojas' es obligatorio.", vbCritical, "Dato Faltante"
+        Me.txtCantidadArchivos.SetFocus
+        Exit Sub
+    End If
+    
+    If Not IsNumeric(Me.txtCantidadArchivos.Value) Then
+        MsgBox "El campo 'N° Fojas' debe ser un número válido.", vbCritical, "Formato Incorrecto"
         Me.txtCantidadArchivos.SetFocus
         Exit Sub
     End If
@@ -132,6 +80,21 @@ Private Sub btnInsertar_Click()
         MsgBox "El campo 'Fecha de Creación' es obligatorio y debe ser una fecha válida.", vbCritical, "Formato Incorrecto"
         Me.txtFechaCreacion.SetFocus
         Exit Sub
+    End If
+    
+    'Validacion coherencia fechas--------------
+    If IsDate(Me.txtFechaCierre.Value) And Me.txtFechaCierre.Value <> "dd/mm/aaaa" Then
+        Dim fCreacion As Date
+        Dim fCierre As Date
+        
+        fCreacion = CDate(Me.txtFechaCreacion.Value)
+        fCierre = CDate(Me.txtFechaCierre.Value)
+        
+        If fCreacion > fCierre Then
+            MsgBox "Error Cronológico: La 'Fecha de Creación' no puede ser posterior a la 'Fecha de Cierre'.", vbCritical, "Fechas Inválidas"
+            Me.txtFechaCreacion.SetFocus
+            Exit Sub
+        End If
     End If
     
     ' Serie y Subserie
@@ -238,6 +201,64 @@ ManejoError:
     Me.btnInsertar.Enabled = True
     Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
     MsgBox "Error al guardar: " & Err.Description, vbCritical
+End Sub
+
+' los datos se cargan a partir de la hoja "Config"
+Private Sub CargarListasDinamicas()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    
+    On Error GoTo ErrorHandler
+    
+    ' Definicion hoja de configuración
+    Set ws = ThisWorkbook.Sheets("Config")
+    
+    ' Reinicio de los comboBox
+    Me.cmbSerie.Clear
+    Me.cmbSubserie.Clear
+    Me.cmbDestino.Clear
+    Me.cmbSoporte.Clear
+    
+    
+   ' Cargar Serie Documental(Columna I)
+    lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "I").Value) <> "" Then
+            Me.cmbSerie.AddItem ws.Cells(i, "I").Value
+        End If
+    Next i
+    
+    ' Cargar Subserie Documental(Columna J)
+    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "J").Value) <> "" Then
+            Me.cmbSubserie.AddItem ws.Cells(i, "J").Value
+        End If
+    Next i
+    
+    ' Cargar Destino Final (Columna G)
+    lastRow = ws.Cells(ws.Rows.Count, "G").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "G").Value) <> "" Then
+            Me.cmbDestino.AddItem ws.Cells(i, "G").Value
+        End If
+    Next i
+    
+    ' Cargar Soporte (Columna H)
+    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "H").Value) <> "" Then
+            Me.cmbSoporte.AddItem ws.Cells(i, "H").Value
+        End If
+    Next i
+    
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Error al cargar las listas en configuración." & vbCrLf & _
+           "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
+           vbCritical, "Error de Carga"
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me

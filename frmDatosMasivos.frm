@@ -13,7 +13,24 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-' frmDatosMasivos
+
+'frmDatosMasivos
+' **************************************************************************
+' ! FORMULARIO DE PROCESAMIENTO MASIVO (Analisis Secuencial)
+' **************************************************************************
+' Este formulario permite:
+' 1. Seleccionar una "Carpeta Madre" y detectar automáticamente sus subcarpetas.
+' 2. Configurar datos administrativos comunes para todo el lote (Serie, Subserie, Caja).
+' 3. Ejecutar un bucle de procesamiento sin intervención manual:
+'    - Lee los metadatos variables de cada subcarpeta (Nombre, Fojas, Fechas).
+'    - Aplica los datos fijos seleccionados.
+'    - Genera códigos de expediente secuenciales uno tras otro.
+'    - Guarda todo en el hoja principal(Excel).
+'
+' UX:
+' - Informa visualmente cuántas carpetas se encontraron.
+' - Gestiona el estado del botón (Gris/Azul) para guiar al usuario.
+' **************************************************************************
 Option Explicit
 
 ' Cola de carpetas a procesar
@@ -23,7 +40,7 @@ Private COLOR_BOTON_INACTIVO As Long
 
 Private Sub UserForm_Initialize()
     'Asignacion colores boton
-    COLOR_BOTON_ACTIVO = RGB(31, 73, 125) ' Azul Oscuro
+    COLOR_BOTON_ACTIVO = RGB(31, 73, 125)
     COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
 
     CargarListasDinamicas
@@ -31,7 +48,7 @@ Private Sub UserForm_Initialize()
     Me.txtNumCaja.Value = 0
     Me.cmbDestino.Value = "Conservación"
     Me.cmbSoporte.Value = "Digital"
-    Me.btnProcesarLote.Enabled = False ' Deshabilitado
+    Me.btnProcesarLote.Enabled = False
     Me.btnProcesarLote.BackColor = COLOR_BOTON_INACTIVO
     
 End Sub
@@ -83,19 +100,14 @@ Private Sub btnProcesarLote_Click()
         MsgBox "Serie y Subserie son obligatorias.", vbExclamation
         Exit Sub
     End If
-    
-    ' Confirmación
-    If MsgBox("Se procesarán " & ColaCarpetas.Count & " carpetas con:" & vbCrLf & _
-              "Serie: " & Me.cmbSerie.Value & vbCrLf & _
-              "¿Continuar?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
 
     'Deshabilitacion boton Empezar
-    'UX- cambio a gris oscuro
     Me.btnProcesarLote.BackColor = COLOR_BOTON_INACTIVO
     Me.btnProcesarLote.Enabled = False
-    Me.Repaint ' Forzar actualización visual
+    Me.Repaint 'actualización visual
     
     On Error GoTo ManejoError
+    
     ' Procesamiento
     Dim rutaActual As String
     Dim infoCarpeta As Object

@@ -13,7 +13,21 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'frmDatosCarpeta (Digital)
+'frmDatosCarpeta
+' **************************************************************************
+' ! FORMULARIO DE GESTIÓN DE CARPETAS DIGITALES
+' **************************************************************************
+' funcionalidades formulario:
+' 1. Seleccionar una carpeta digital individualmente.
+' 2. Visualizar sus metadatos (Nombre, Fecha, Fojas, Peso).
+' 3. Completar información archivística (Serie, Subserie, Caja).
+' 4. Generar automáticamente el código de expediente.
+' 5. Guardar el registro en la hoja Excel principal.
+'
+' UX:
+' - El botón "Insertar" permanece bloqueado hasta que se selecciona una carpeta válida.
+' - Se bloquea visualmente durante el proceso de guardado para evitar duplicados.
+' **************************************************************************
 Option Explicit
 
 Private pDatosCarpeta As Object    ' info de carpeta en proceso
@@ -22,7 +36,7 @@ Private COLOR_BOTON_INACTIVO As Long
 
 Private Sub UserForm_Initialize()
     COLOR_BOTON_ACTIVO = RGB(31, 73, 125)   ' Azul Oscuro
-    COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
+    COLOR_BOTON_INACTIVO = RGB(160, 160, 160)
     
     
     CargarListasDinamicas
@@ -48,7 +62,7 @@ Private Sub btnSeleccionarCarpeta_Click()
     
     If folderPath <> "" Then
         Set pDatosCarpeta = ObtenerInfoCarpeta(folderPath)
-        MostrarDatosCarpeta pDatosCarpeta ' modInicio
+        MostrarDatosCarpeta pDatosCarpeta
         
         Me.txtNumExpediente.Value = GenerarNuevoCodigoExpediente()
         
@@ -56,70 +70,15 @@ Private Sub btnSeleccionarCarpeta_Click()
         Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
     End If
 End Sub
-' Carga de opciones para los comboBox en el forms
-' los datos se cargan a partir de la hoja "Config"
-Private Sub CargarListasDinamicas()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    
-    On Error GoTo ErrorHandler
-    
-    ' Definicion hoja de configuración
-    Set ws = ThisWorkbook.Sheets("Config")
-    
-    ' Reinicio de los comboBox
-    Me.cmbSerie.Clear
-    Me.cmbSubserie.Clear
-    Me.cmbDestino.Clear
-    Me.cmbSoporte.Clear
 
-    ' Cargar Serie Documental(Columna I)
-    lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "I").Value) <> "" Then
-            Me.cmbSerie.AddItem ws.Cells(i, "I").Value
-        End If
-    Next i
-    
-    ' Cargar Subserie Documental(Columna J)
-    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "J").Value) <> "" Then
-            Me.cmbSubserie.AddItem ws.Cells(i, "J").Value
-        End If
-    Next i
-    
-    ' Cargar Destino Final (Columna G)
-    lastRow = ws.Cells(ws.Rows.Count, "G").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "G").Value) <> "" Then
-            Me.cmbDestino.AddItem ws.Cells(i, "G").Value
-        End If
-    Next i
-    
-    ' Cargar Soporte (Columna H)
-    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).Row
-    For i = 3 To lastRow
-        If Trim(ws.Cells(i, "H").Value) <> "" Then
-            Me.cmbSoporte.AddItem ws.Cells(i, "H").Value
-        End If
-    Next i
-    
-    Exit Sub
 
-ErrorHandler:
-    MsgBox "Error al cargar las listas de la hoja de configuración." & vbCrLf & _
-           "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
-           vbCritical, "Error de Carga"
-End Sub
 
 Private Sub btnInsertar_Click()
     
     ' Validar que los datos de la carpeta no esten vacios
     If pDatosCarpeta Is Nothing Then
         MsgBox "Error: Primero debe seleccionar una carpeta usando el botón 'Examinar...'.", vbCritical, "Acción Requerida"
-        Me.btnSeleccionarCarpeta.SetFocus ' Sugiere al usuario qué botón presionar
+        Me.btnSeleccionarCarpeta.SetFocus
         Exit Sub
     End If
     
@@ -152,7 +111,7 @@ Private Sub btnInsertar_Click()
     End If
     
     
-    ' UX - boton
+    ' UX
     Me.btnInsertar.Enabled = False
     Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
     Me.Repaint ' actualización visual
@@ -212,37 +171,91 @@ ManejoError:
         Me.btnInsertar.BackColor = COLOR_BOTON_ACTIVO
 End Sub
 
+' los datos se cargan a partir de la hoja "Config"
+Private Sub CargarListasDinamicas()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    
+    On Error GoTo ErrorHandler
+    
+    ' Definicion hoja de configuración
+    Set ws = ThisWorkbook.Sheets("Config")
+    
+    ' Reinicio de los comboBox
+    Me.cmbSerie.Clear
+    Me.cmbSubserie.Clear
+    Me.cmbDestino.Clear
+    Me.cmbSoporte.Clear
+
+    ' Cargar Serie Documental(Columna I)
+    lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "I").Value) <> "" Then
+            Me.cmbSerie.AddItem ws.Cells(i, "I").Value
+        End If
+    Next i
+    
+    ' Cargar Subserie Documental(Columna J)
+    lastRow = ws.Cells(ws.Rows.Count, "J").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "J").Value) <> "" Then
+            Me.cmbSubserie.AddItem ws.Cells(i, "J").Value
+        End If
+    Next i
+    
+    ' Cargar Destino Final (Columna G)
+    lastRow = ws.Cells(ws.Rows.Count, "G").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "G").Value) <> "" Then
+            Me.cmbDestino.AddItem ws.Cells(i, "G").Value
+        End If
+    Next i
+    
+    ' Cargar Soporte (Columna H)
+    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).Row
+    For i = 3 To lastRow
+        If Trim(ws.Cells(i, "H").Value) <> "" Then
+            Me.cmbSoporte.AddItem ws.Cells(i, "H").Value
+        End If
+    Next i
+    
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Error al cargar las listas de la hoja de configuración." & vbCrLf & _
+           "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
+           vbCritical, "Error de Carga"
+End Sub
+
+' Método para llenar los campos visuales con la info del diccionario
+Private Sub MostrarDatosCarpeta(info As Object)
+    Me.txtRutaCarpeta.Value = info("Ruta")
+    Me.txtNombreCarpeta.Value = info("Nombre")
+    Me.txtFechaCreacion.Value = info("FechaCreacion")
+    Me.txtCantidadArchivos.Value = info("CantidadArchivos")
+    Me.txtTamanoTotal.Value = info("TamanoTotal")
+    Me.txtFechaCierre.Value = info("FechaCierre")
+End Sub
+
+Private Sub LimpiarFormulario()
+    Me.txtRutaCarpeta.Value = ""
+    Me.txtNombreCarpeta.Value = ""
+    Me.txtFechaCreacion.Value = ""
+    Me.txtCantidadArchivos.Value = ""
+    Me.txtTamanoTotal.Value = ""
+    Me.txtObservaciones.Value = ""
+    Me.txtFechaCierre.Value = "dd/mm/aaaa"
+End Sub
+
 Private Sub btnCerrar_Click()
     Unload Me
 End Sub
 
 Private Sub btnLimpiar_Click()
-    LimpiarFormulario 'modUtilidades
+    LimpiarFormulario
 End Sub
 
-' Funcion btn Insertar Datos
-'Private Sub btnInsertar_Click()
-
-    'MEJORA -> Deshabilitar boton de click , al presionar, para evitar doble click.
-    'Me.btnInsertarDatos.Enabled = False
-    'Me.btnInsertarDatos.Enabled = True
 
 
-    ' Validación opcional para la fecha de cierre(Deshabilitado)
-    'If Trim(Me.txtFechaCierre.Value) <> "" And Not IsDate(Me.txtFechaCierre.Value) Then
-        'MsgBox "El formato de 'Fecha Cierre' no es válido. Use un formato de fecha.", vbExclamation, "Formato Inválido"
-        'Me.txtFechaCierre.SetFocus
-        'Exit Sub
-    'End If
-    
-    
-    ' seteo de los datos manuales de la carpeta
-    '  Validaciones de fecha
-    'MEJORA -> lafecha debe estar vacia o ser valida, sino excepcion y focus en fecha(bloqueando la escritura en excel hasta que tenga buen formato).
-    
-    
-    ' validar Fecha de creacion(Si no se parsea correctamente, se escribe en el excel como "dd/mm/aaaa")
-    
-    
-'End Sub
 

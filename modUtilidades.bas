@@ -1,13 +1,7 @@
 Attribute VB_Name = "modUtilidades"
 'modUtilidades
 ' **************************************************************************
-' !
-' **************************************************************************
-' Este código maneja distintas utilidades para la seleccion y analisis de carpetas digitales.
-'
-' IMPORTANTE:
-' - Evite alteraciones.
-' - Si borra este código, el formulario dejará de funcionar automáticamente.
+' ! UTILIDADES GENÉRICAS DEL SISTEMA DE ARCHIVOS
 ' **************************************************************************
 
 ' Muestra el diálogo para seleccionar carpeta y devuelve la ruta
@@ -74,7 +68,7 @@ Function ObtenerInfoCarpeta(folderPath As String) As Object
     ' definimos que solo quede la fecha y no las horas.
     info("FechaCreacion") = DateValue(carpeta.DateCreated)
     
-    ' Si fechaMax sigue siendo 0 (carpeta vacía), lo dejamos vacío
+    ' Si fechaMax sigue siendo 0 (carpeta vacía), lo dejamos DEFAULT
     If fechaMax > 0 Then
         info("FechaCierre") = DateValue(fechaMax)
     Else
@@ -86,83 +80,5 @@ End Function
 
 
 
-Private Sub buscarSeccion_Click()
-
-    Dim ws As Worksheet
-    
-    ' Validar que se haya seleccionado algo
-    If Me.ComboBox1.Value = "" Then
-        MsgBox "Por favor, selecciona o escribe una opción.", vbExclamation
-        Exit Sub
-    End If
-
-    ' Usamos la hoja activa (desde donde llamaste al botón)
-    Set ws = ActiveSheet
-
-    On Error GoTo ErrorHandler
-
-    ' 2. Escribir SIEMPRE en la celda E5
-    ' (Al ser combinada, basta con apuntar a la primera celda del rango, que es C6)
-    ws.Range("E5").Value = Me.ComboBox1.Value
 
 
-    ' Cerrar formulario
-    Unload Me
-    Exit Sub
-
-ErrorHandler:
-    MsgBox "Error: " & Err.Description
-End Sub
-
-
-Function GenerarNuevoCodigoExpediente() As String
-    ' Esta función calcula el código visualmente para el formulario
-    
-    Dim wsConfig As Worksheet
-    Dim wsInventario As Worksheet
-    Dim tbl As ListObject
-    Dim codSeleccionado As String
-    Dim siguienteNumero As Long
-    
-    ' Definición de Constantes
-    Const FORMATO_PREFIJO As String = "ESPOL-"
-    Const CODIGO_DESCONOCIDO As String = "???"
-    Const NOMBRE_TABLA As String = "tabla_test89"
-    
-    ' Referencias
-    Set wsInventario = ThisWorkbook.Sheets("Inventario General")
-    On Error Resume Next
-    Set tbl = wsInventario.ListObjects(NOMBRE_TABLA)
-    On Error GoTo 0
-    
-    If tbl Is Nothing Then
-        GenerarNuevoCodigoExpediente = "Error-Tabla"
-        Exit Function
-    End If
-    
-    ' Leer Código de Sección
-    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
-    If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
-    
-    ' cantidad filas actual + 1
-    siguienteNumero = tbl.ListRows.Count + 1
-    
-    ' Armar el String
-    GenerarNuevoCodigoExpediente = FORMATO_PREFIJO & codSeleccionado & "-" & Format(siguienteNumero, "000")
-
-End Function
-
-
-'DESHABILITADO
-' Limpia todos los campos del formulario
-Sub LimpiarFormulario()
-    With frmDatosCarpeta
-        .txtRutaCarpeta.Value = ""
-        .txtNombreCarpeta.Value = ""
-        .txtFechaCreacion.Value = ""
-        .txtCantidadArchivos.Value = ""
-        .txtTamanoTotal.Value = ""
-        .txtObservaciones.Value = ""
-        .txtFechaCierre.Value = "dd/mm/aaaa"
-    End With
-End Sub

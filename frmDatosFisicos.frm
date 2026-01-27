@@ -15,23 +15,31 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 'frmDatosFisicos
+' **************************************************************************
+' ! FORMULARIO DE GESTIÓN DE CARPETAS FÍSICAS
+' **************************************************************************
+' funcionalidades:
+' 1. Ingresar manualmente los datos de una carpeta física.
+' 2. Validar reglas específicas (Fojas numéricas, Fecha Creación <= Cierre).
+' 3. Completar información de ubicación topográfica (Zona, Estantería, Bandeja).
+' 4. Generar automáticamente el código de expediente.
+' 5. Guardar el registro en la hoja principal Excel.
+' **************************************************************************
 Option Explicit
 
-' Variable a nivel de formulario para guardar los datos de la carpeta
 Private pDatosCarpeta As Object
-
 Private COLOR_BOTON_ACTIVO As Long
 Private COLOR_BOTON_INACTIVO As Long
 
 
 ' Metodo de inicializacion del forms
 Private Sub UserForm_Initialize()
-    COLOR_BOTON_ACTIVO = RGB(31, 73, 125)   ' Azul Oscuro
+    COLOR_BOTON_ACTIVO = RGB(31, 73, 125)
     COLOR_BOTON_INACTIVO = RGB(160, 160, 160) ' Gris
     ' Carga de las listas dinámicas
     CargarListasDinamicas
     
-    ' Seteado valores default de cierto campos
+    ' Seteado valores default
     Me.txtNumCaja.Value = 0
     Me.cmbDestino.Value = "Conservación"
     Me.cmbSoporte.Value = "Físico"
@@ -42,16 +50,6 @@ Private Sub UserForm_Initialize()
     
 End Sub
 
-Private Sub btnLimpiar_Click()
-    ' Limpiar campos manuales
-    Me.txtNombreCarpeta.Value = ""
-    Me.txtFechaCreacion.Value = "dd/mm/aaaa"
-    Me.txtCantidadArchivos.Value = "" ' Fojas
-    Me.txtObservaciones.Value = ""
-    Me.txtFechaCierre.Value = "dd/mm/aaaa"
-End Sub
-
-' Funcion btn Insertar Datos
 Private Sub btnInsertar_Click()
 
     ' VALIDACIÓNES DE CAMPOS OBLIGATORIOS
@@ -82,7 +80,7 @@ Private Sub btnInsertar_Click()
         Exit Sub
     End If
     
-    'Validacion coherencia fechas--------------
+    ' Coherencia fechas
     If IsDate(Me.txtFechaCierre.Value) And Me.txtFechaCierre.Value <> "dd/mm/aaaa" Then
         Dim fCreacion As Date
         Dim fCierre As Date
@@ -132,11 +130,11 @@ Private Sub btnInsertar_Click()
 
     Me.btnInsertar.Enabled = False
     Me.btnInsertar.BackColor = COLOR_BOTON_INACTIVO
-    Me.Repaint ' actualización visual
+    Me.Repaint
     
     On Error GoTo ManejoError
 
-    ' PREPARACIÓN DE DATOS (y valores por defecto)
+    ' PREPARACIÓN DE DATOS
     Dim datosManuales As Object
     Set datosManuales = CreateObject("Scripting.Dictionary")
     
@@ -149,6 +147,7 @@ Private Sub btnInsertar_Click()
     datosManuales("NumCaja") = Me.txtNumCaja.Value
     datosManuales("Soporte") = Me.cmbSoporte.Value
     datosManuales("Destino") = Me.cmbDestino.Value
+
         
     ' --- NO OBLIGATORIOS CON DEFAULT ---
     ' Fecha de Cierre (Default: dd/mm/aaaa)
@@ -157,11 +156,11 @@ Private Sub btnInsertar_Click()
     Else
         datosManuales("FechaCierre") = "dd/mm/aaaa"
     End If
-
+    datosManuales("NumExpediente") = Me.txtNumExpediente.Value
     
     ' Observaciones (Se permite vacío)
     datosManuales("Observaciones") = Me.txtObservaciones.Value
-    datosManuales("NumExpediente") = Me.txtNumExpediente.Value
+
     
     ' CAMPOS UBICACIÓN TOPOGRÁFICA (Default: NN)
     If Trim(Me.txtZona.Value) = "" Then
@@ -170,14 +169,12 @@ Private Sub btnInsertar_Click()
         datosManuales("Zona") = Me.txtZona.Value
     End If
     
-    ' Estanteria
     If Trim(Me.txtEstanteria.Value) = "" Then
         datosManuales("Estanteria") = "NN"
     Else
         datosManuales("Estanteria") = Me.txtEstanteria.Value
     End If
     
-    ' Bandeja
     If Trim(Me.txtBandeja.Value) = "" Then
         datosManuales("Bandeja") = "NN"
     Else
@@ -186,7 +183,7 @@ Private Sub btnInsertar_Click()
 
     
 
-    ' ENVIAR A EXCEL
+    ' Registrar en Excel
     If ExportarDatosInventario(datosManuales) Then
         MsgBox "Registro Guardado con éxito.", vbInformation
         btnLimpiar_Click
@@ -259,6 +256,14 @@ ErrorHandler:
     MsgBox "Error al cargar las listas en configuración." & vbCrLf & _
            "Asegúrese que la hoja 'Config' existe y tiene el formato correcto.", _
            vbCritical, "Error de Carga"
+End Sub
+
+Private Sub btnLimpiar_Click()
+    Me.txtNombreCarpeta.Value = ""
+    Me.txtFechaCreacion.Value = "dd/mm/aaaa"
+    Me.txtCantidadArchivos.Value = ""
+    Me.txtObservaciones.Value = ""
+    Me.txtFechaCierre.Value = "dd/mm/aaaa"
 End Sub
 Private Sub btnCerrar_Click()
     Unload Me

@@ -1,5 +1,8 @@
 Attribute VB_Name = "modExportarExcel"
 'modExportarExcel
+' **************************************************************************
+' ! LÓGICA DE ESCRITURA EN LA HOJA PRINCIPAL
+' **************************************************************************
 
 ' Funcion que escribe los datos de la carpeta en una hoja excel
 Function ExportarDatosInventario(datos As Object) As Boolean
@@ -34,22 +37,10 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     If nombreFuente = "" Then nombreFuente = "Calibri"
     If tamanoFuente < 8 Then tamanoFuente = 8
     
-    ' DEFINICIÓN DE VARIABLES ESTÁNDAR para el N° exp.
-    Const FORMATO_PREFIJO As String = "ESPOL-"
-    Const CODIGO_DESCONOCIDO As String = "???"
-    
-    Dim codSeleccionado As String
-    Dim correlativo As Long
-    Dim codigoExpedienteFinal As String
-    
-    
     ' AÑADIR UNA NUEVA FILA A LA TABLA
-    ' se añade la fila al final de la tabla
-    ' y "empuja" cualquier contenido de abajo
     Set newRow = tbl.ListRows.Add(AlwaysInsert:=True)
     
     ' Escritura de datos en la nueva fila
-    ' Usamos .Range(columna_numero) para escribir en la celda
     ' Col 1: SERIE DOCUMENTAL
     newRow.Range(1).Value = datos("Serie")
     
@@ -75,8 +66,6 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     ' Col 8: FOJAS
     newRow.Range(8).NumberFormat = "0"
     newRow.Range(8).Value = Val(datos("CantidadArchivos"))
-    
-    newRow.Range(8).Value = datos("CantidadArchivos")
     
     ' Col 9: DESTINO FINAL
     newRow.Range(9).Value = datos("Destino")
@@ -115,18 +104,12 @@ Function ExportarDatosInventario(datos As Object) As Boolean
         .Borders.LineStyle = xlContinuous ' Añade bordes
         .Borders.Weight = xlThin ' Borde delgado
         
-        ' Formato de texto y alineación ---
-        ' Centra el texto verticalmente en las celdas
-        '.VerticalAlignment = xlCenter
-        ' Permite que el texto se ajuste y la fila crezca
+        ' Formato de texto y alineación
         .WrapText = True
-        
-        ' fuente y tamano
         .Font.Name = nombreFuente
         .Font.Size = tamanoFuente
         
-        'Altura Mínima ---
-        ' 1. Deja que Excel autoajuste la fila según el contenido
+        'Altura Mínima --
         .EntireRow.AutoFit
         
         ' Compara con la variable leída de Config
@@ -136,7 +119,6 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     End With
     ' ------------------------------------------------
     
-    ' 4. Si todo salió bien, devuelve True
     ExportarDatosInventario = True
     Exit Function
 
@@ -147,7 +129,66 @@ ManejoError:
            "y que la tabla se llama" & nombreTabla & ".", vbCritical, "Error en 'modExportarExcel'"
     ExportarDatosInventario = False
 End Function
+      
+Function GenerarNuevoCodigoExpediente() As String
+    ' Esta función calcula el código visualmente para el formulario
+    
+    Dim wsInventario As Worksheet
+    Dim tbl As ListObject
+    Dim codSeleccionado As String
+    Dim siguienteNumero As Long
+    
+    ' Definición de Constantes
+    Const FORMATO_PREFIJO As String = "ESPOL-"
+    Const CODIGO_DESCONOCIDO As String = "???"
+    Const NOMBRE_TABLA As String = "tabla_test89"
+    
+    ' Referencias
+    Set wsInventario = ThisWorkbook.Sheets("Inventario General")
+    On Error Resume Next
+    Set tbl = wsInventario.ListObjects(NOMBRE_TABLA)
+    On Error GoTo 0
+    
+    If tbl Is Nothing Then
+        GenerarNuevoCodigoExpediente = "Error-Tabla"
+        Exit Function
+    End If
+    
+    ' Leer Código de Sección
+    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
+    If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
+    
+    ' cantidad filas actual + 1
+    siguienteNumero = tbl.ListRows.Count + 1
+    
+    ' Armar el String
+    GenerarNuevoCodigoExpediente = FORMATO_PREFIJO & codSeleccionado & "-" & Format(siguienteNumero, "000")
 
-    ' ------ datos de prueba adicionales que no van en la plantilla final ------
-    'ws.Cells(lRow, 14).Value = "Ruta: " & datos("Ruta")
-    'ws.Cells(lRow, 15).Value = "Tamaño: " & datos("TamanoTotal") & " KB"
+End Function
+
+
+Public Function BuscarFilaConfig(sec As String, subSec As String) As Long
+    Dim wsConfig As Worksheet
+    Dim i As Long
+    Dim lastRow As Long
+    Set wsConfig = ThisWorkbook.Sheets("Config")
+    
+    lastRow = wsConfig.Cells(wsConfig.Rows.Count, "M").End(xlUp).Row
+    
+    For i = 2 To lastRow
+        ' Si la subsección está vacía, buscamos solo por sección (la primera coincidencia)
+        If subSec = "" Then
+             If wsConfig.Cells(i, "M").Value = sec Then
+                BuscarFilaConfig = i
+                Exit Function
+             End If
+        Else
+            ' Si hay subsección, buscamos coincidencia exacta de ambos
+            If wsConfig.Cells(i, "M").Value = sec And wsConfig.Cells(i, "N").Value = subSec Then
+                BuscarFilaConfig = i
+                Exit Function
+            End If
+        End If
+    Next i
+    BuscarFilaConfig = 0
+End Function

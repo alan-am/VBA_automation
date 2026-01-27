@@ -13,6 +13,22 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'frmBusqueda
+' **************************************************************************
+' ! FORMULARIO DE SELECCIÓN DE UNIDAD PRODUCTORA (SECCIÓN)
+' **************************************************************************
+' Este formulario permite:
+' 1. Seleccionar la Sección y Subsección desde la lista de configuración.
+' 2. Filtrar dinámicamente las subsecciones (Lista en Cascada).
+' 3. Identificar el "Código de Sección" (ej. "REC", "FIN") necesario para
+'    generar los números de expediente.
+' 4. Actualizar los encabezados en la hoja de Excel activa y guardar la
+'    configuración global para el uso de los otros formularios.
+'
+' UX:
+' - Soporte para teclado: Enter avanza entre campos y despliega listas.
+' **************************************************************************
+
 Option Explicit
 
 ' Variable a nivel de formulario
@@ -23,11 +39,7 @@ Private Sub UserForm_Initialize()
     
     ' hoja de configuración
     Set wsConfig = ThisWorkbook.Sheets("Config")
-    
-    ' Configuración visual inicial
     ConfigurarCombos
-    
-    ' Cargar lista de Secciones(Columna M)
     CargarSeccionesUnicas
 End Sub
 
@@ -44,8 +56,8 @@ Private Sub ConfigurarCombos()
         .Clear
         .MatchEntry = fmMatchEntryComplete
         .Style = fmStyleDropDownCombo
-        .Enabled = False ' Se mantiene bloqueado hasta que elijan Sección
-        .BackColor = RGB(240, 240, 240) ' Gris visual para indicar "inactivo"
+        .Enabled = False ' Se mantiene bloqueado hasta elegir Sección
+        .BackColor = RGB(240, 240, 240) ' UX
     End With
 End Sub
 
@@ -146,7 +158,7 @@ Private Sub btnAceptar_Click()
         codSubseccion = CODIGO_DEFECTO_TABLA
     End If
 
-    ' ORDEN DE PRIORIDAD
+    ' ORDEN DE PRIORIDAD DE CODIGO
     '  a. Existe Subsección seleccionada
     If Me.cmbSubseccion.Value <> "" Then
         If codSubseccion <> CODIGO_DEFECTO_TABLA And codSubseccion <> "" Then
@@ -155,7 +167,7 @@ Private Sub btnAceptar_Click()
             codSeleccionado = CODIGO_DESCONOCIDO
         End If
         
-    ' B. Solo hay Sección
+    ' b. Solo hay Sección
     Else
         If codSeccion <> CODIGO_DEFECTO_TABLA And codSeccion <> "" Then
             codSeleccionado = codSeccion
@@ -183,13 +195,8 @@ Private Sub btnAceptar_Click()
     Unload Me
 End Sub
 
-Private Sub btnCancelar_Click()
-    Unload Me
-End Sub
-
 
 ' UX eventos de teclado
-
 Private Sub cmbSeccion_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
     If KeyCode = vbKeyReturn Then
         KeyCode = 0
@@ -208,28 +215,7 @@ Private Sub cmbSubseccion_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal 
     End If
 End Sub
 
-' ------------------------------------------------------------------------
-' FUNCIONES AUXILIARES FUTURAS
 
-Private Function BuscarFilaConfig(sec As String, subSec As String) As Long
-    Dim i As Long
-    Dim lastRow As Long
-    lastRow = wsConfig.Cells(wsConfig.Rows.Count, "M").End(xlUp).Row
-    
-    For i = 2 To lastRow
-        ' Si la subsección está vacía, buscamos solo por sección (la primera coincidencia)
-        If subSec = "" Then
-             If wsConfig.Cells(i, "M").Value = sec Then
-                BuscarFilaConfig = i
-                Exit Function
-             End If
-        Else
-            ' Si hay subsección, buscamos coincidencia exacta de ambos
-            If wsConfig.Cells(i, "M").Value = sec And wsConfig.Cells(i, "N").Value = subSec Then
-                BuscarFilaConfig = i
-                Exit Function
-            End If
-        End If
-    Next i
-    BuscarFilaConfig = 0
-End Function
+Private Sub btnCancelar_Click()
+    Unload Me
+End Sub

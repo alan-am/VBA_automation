@@ -23,8 +23,8 @@ Function ExportarDatosInventario(datos As Object) As Boolean
     Dim tamanoFuente As Double
     
     ' Definir hojas y tabla a editar/usar
-    Set wsInventario = ThisWorkbook.Sheets("Inventario General")
-    Set wsConfig = ThisWorkbook.Sheets("Config")
+    Set wsInventario = wskInventario
+    Set wsConfig = wskConfig
     Set tbl = wsInventario.ListObjects(nombreTabla)
     
     ' -- Lectura de valores
@@ -144,7 +144,7 @@ Function GenerarNuevoCodigoExpediente() As String
     Const NOMBRE_TABLA As String = "tabla_test89"
     
     ' Referencias
-    Set wsInventario = ThisWorkbook.Sheets("Inventario General")
+    Set wsInventario = wskInventario
     On Error Resume Next
     Set tbl = wsInventario.ListObjects(NOMBRE_TABLA)
     On Error GoTo 0
@@ -155,7 +155,7 @@ Function GenerarNuevoCodigoExpediente() As String
     End If
     
     ' Leer Código de Sección
-    codSeleccionado = Trim(Hoja4.Range("Q2").Value)
+    codSeleccionado = Trim(wskConfig.Range("Q2").Value)
     If codSeleccionado = "" Then codSeleccionado = CODIGO_DESCONOCIDO
     
     ' cantidad filas actual + 1
@@ -171,7 +171,7 @@ Public Function BuscarFilaConfig(sec As String, subSec As String) As Long
     Dim wsConfig As Worksheet
     Dim i As Long
     Dim lastRow As Long
-    Set wsConfig = ThisWorkbook.Sheets("Config")
+    Set wsConfig = wskConfig
     
     lastRow = wsConfig.Cells(wsConfig.Rows.Count, "M").End(xlUp).Row
     

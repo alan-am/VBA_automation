@@ -180,7 +180,7 @@ Private Sub CargarListasDinamicas()
     On Error GoTo ErrorHandler
     
     ' Definicion hoja de configuración
-    Set ws = ThisWorkbook.Sheets("Config")
+    Set ws = wskConfig
     
     ' Reinicio de los comboBox
     Me.cmbSerie.Clear

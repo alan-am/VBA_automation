@@ -169,7 +169,7 @@ Private Sub CargarListasDinamicas()
     Dim lastRow As Long
     Dim i As Long
     On Error Resume Next
-    Set ws = ThisWorkbook.Sheets("Config")
+    Set ws = wskConfig
     
     ' Serie
     lastRow = ws.Cells(ws.Rows.Count, "I").End(xlUp).Row

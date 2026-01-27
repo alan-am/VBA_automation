@@ -38,7 +38,7 @@ Private Sub UserForm_Initialize()
     Me.StartUpPosition = 2
     
     ' hoja de configuración
-    Set wsConfig = ThisWorkbook.Sheets("Config")
+    Set wsConfig = wskConfig
     ConfigurarCombos
     CargarSeccionesUnicas
 End Sub
@@ -184,7 +184,7 @@ Private Sub btnAceptar_Click()
     wsActiva.Range("E6").Value = Me.cmbSubseccion.Value
     
     ' Guardado de codigo en la hoja config celda Q2
-    Hoja4.Range("Q2").Value = codSeleccionado
+    wskConfig.Range("Q2").Value = codSeleccionado
     
     If Err.Number <> 0 Then
         MsgBox "Error al escribir los datos.", vbCritical
